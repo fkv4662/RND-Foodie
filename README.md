@@ -31,4 +31,6 @@ JWT_SECRET=super_secret_key
 ```
 
 Run it
+```
 npm run dev
+```
