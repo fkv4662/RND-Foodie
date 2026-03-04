@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fridge Log Tester</title>
+</head>
+<body>
+  <h1>Post Fridge Log</h1>
+  <form id="fridgeForm">
+    <label>Device Name: <input type="text" name="device_name" required></label><br>
+    <label>Temperature (°C): <input type="number" name="temperature" required></label><br>
+    <label>Humidity (%): <input type="number" name="humidity" required></label><br>
+    <button type="submit">Submit</button>
+  </form>
+  <pre id="result"></pre>
+  <script>
+    document.getElementById('fridgeForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        device_name: form.device_name.value,
+        temperature: parseFloat(form.temperature.value),
+        humidity: parseFloat(form.humidity.value)
+      };
+      const res = await fetch('http://localhost:4000/api/fridge/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+    });
+  </script>
+</body>
+</html>
