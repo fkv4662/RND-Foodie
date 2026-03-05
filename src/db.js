@@ -23,6 +23,19 @@ pool.connect()
     } catch (err) {
       console.error("Error creating fridge_logs table:", err.message);
     }
+    // Auto-create users table if not exists
+    const createUsersTableSQL = `CREATE TABLE IF NOT EXISTS public.users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(255) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );`;
+    try {
+      await pool.query(createUsersTableSQL);
+      console.log("users table ensured.");
+    } catch (err) {
+      console.error("Error creating users table:", err.message);
+    }
   })
   .catch(err => console.error("Database connection error:", err));
 
