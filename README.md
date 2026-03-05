@@ -21,6 +21,8 @@ cd foodie-control-backend
 Install Dependencies
 ```
 npm install
+
+npm install bcryptjs
 ```
 
 Envirovement 
