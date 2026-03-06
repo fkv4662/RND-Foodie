@@ -1,11 +1,11 @@
 require("dotenv").config();
 require("./db");
 
-
 const express = require("express");
 const cors = require("cors");
 const app = express();
 
+const { seedAdmin } = require("./seedAdmin");
 
 app.use(cors());
 app.use(express.json());
@@ -38,7 +38,6 @@ app.get('/fridge.html', (req, res, next) => {
 
 app.use(express.static(__dirname + '/public'));
 
-
 // Routers
 const rationalFridgeRouter = require('./routes/rationalFridge.routes');
 const authRouter = require('./routes/auth.routes');
@@ -51,6 +50,7 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  await seedAdmin();
 });
