@@ -8,12 +8,12 @@ const SECRET = process.env.JWT_SECRET || "super_secret_key";
 
 // Register route
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-  if (!email || !password) {
+  if (!username || !email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Email and password required",
+      message: "Username, email, and password required",
     });
   }
 
@@ -33,9 +33,8 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, is_active)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [name || "User", email, hashedPassword, "USER", true]
+      `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
+      [username, email, hashedPassword]
     );
 
     return res.json({
@@ -77,7 +76,7 @@ router.post("/login", async (req, res) => {
 
     const user = userRes.rows[0];
 
-    const valid = await bcrypt.compare(password, user.password_hash);
+    const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
       return res.status(401).json({

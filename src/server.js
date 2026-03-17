@@ -7,6 +7,8 @@ const app = express();
 
 const { seedAdmin } = require("./seedAdmin");
 
+const { initTables } = require("./initTables");
+
 app.use(cors());
 app.use(express.json());
 
@@ -43,6 +45,17 @@ const rationalFridgeRouter = require('./routes/rationalFridge.routes');
 const authRouter = require('./routes/auth.routes');
 app.use('/api/fridge', rationalFridgeRouter);
 app.use('/api/auth', authRouter);
+
+// Database test route
+const { pool } = require('./db');
+app.get('/api/db-test', async (req, res) => {
+  try {
+    await pool.query('SELECT NOW()');
+    res.json({ success: true, message: 'Database connection successful' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Database connection failed', error: err.message });
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("Foodie Control Backend Running");

@@ -143,6 +143,11 @@ export default function Dashboard() {
 }
 
 function SidebarItem({ icon, label }: { icon: string; label: string }) {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    if (label === "CCP") navigate("/ccp");
+    // Add more navigation logic for other sidebar items if needed
+  };
   return (
     <div
       style={{
@@ -150,6 +155,7 @@ function SidebarItem({ icon, label }: { icon: string; label: string }) {
         textAlign: "center",
         cursor: "pointer",
       }}
+      onClick={handleClick}
     >
       <div
         style={{

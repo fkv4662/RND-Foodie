@@ -41,7 +41,7 @@ const Login: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: regName,
+          username: regName,
           email: regEmail,
           password: regPassword
         })
