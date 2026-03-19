@@ -7,8 +7,6 @@ const app = express();
 
 const { seedAdmin } = require("./seedAdmin");
 
-const { initTables } = require("./initTables");
-
 app.use(cors());
 app.use(express.json());
 
@@ -63,7 +61,10 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
+const { initTables } = require('./initTables');
+
 app.listen(PORT, async () => {
+  await initTables();
   console.log(`Server running on http://localhost:${PORT}`);
   await seedAdmin();
 });
