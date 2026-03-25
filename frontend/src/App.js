@@ -11,21 +11,49 @@ function App() {
     status: "Open"
   });
 
+  const [incidents, setIncidents] = useState([]);
+  const [showData, setShowData] = useState(false);
+
+  // Handle input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Save to MySQL
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const response = await fetch("http://localhost:5000/incidents", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(form)
     });
 
     const data = await response.json();
     alert(data.message);
+
+    // Clear form
+    setForm({
+      date: "",
+      time: "",
+      reported_by: "",
+      description: "",
+      action_taken: "",
+      status: "Open"
+    });
+
+    // Auto show updated data
+    fetchIncidents();
+    setShowData(true);
+  };
+
+  // Fetch data
+  const fetchIncidents = async () => {
+    const res = await fetch("http://localhost:5000/incidents");
+    const data = await res.json();
+    setIncidents(data);
   };
 
   return (
@@ -43,19 +71,33 @@ function App() {
         </nav>
       </aside>
 
-      {/* Main content */}
+      {/* Main */}
       <main className="main">
         <header className="main-header">
           <h1>Diary / Incident Log</h1>
           <p className="subtitle">
-            Record all incidents, equipment failures, pest sightings, and other issues that occur in the kitchen.
-            This log is required for council audits and helps track how problems were resolved.
+            Record all incidents, equipment failures, pest sightings, and other issues.
           </p>
         </header>
 
         <section className="card">
-          <h2 className="card-title">Add New Entry</h2>
 
+          {/* 🔥 HEADER WITH DATA BUTTON */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 className="card-title">Add New Entry</h2>
+
+            <button
+              className="btn btn-secondary"
+              onClick={async () => {
+                await fetchIncidents();
+                setShowData(!showData);
+              }}
+            >
+              {showData ? "Hide Data" : "View Data"}
+            </button>
+          </div>
+
+          {/* FORM */}
           <form className="form" onSubmit={handleSubmit}>
             <div className="row">
               <div className="field">
@@ -68,6 +110,7 @@ function App() {
                   required
                 />
               </div>
+
               <div className="field">
                 <label>Time</label>
                 <input
@@ -85,7 +128,6 @@ function App() {
               <input
                 type="text"
                 name="reported_by"
-                placeholder="Your name"
                 value={form.reported_by}
                 onChange={handleChange}
                 required
@@ -93,10 +135,9 @@ function App() {
             </div>
 
             <div className="field">
-              <label>Issue / Incident Description</label>
+              <label>Description</label>
               <textarea
                 name="description"
-                placeholder="Describe what happened... (e.g., Fridge 2 not cooling, rat spotted, equipment broken)"
                 value={form.description}
                 onChange={handleChange}
                 rows={4}
@@ -108,7 +149,6 @@ function App() {
               <label>Action Taken</label>
               <textarea
                 name="action_taken"
-                placeholder="Describe what you did to fix it... (you can add more updates later)"
                 value={form.action_taken}
                 onChange={handleChange}
                 rows={3}
@@ -129,6 +169,7 @@ function App() {
                   />
                   Open
                 </label>
+
                 <label>
                   <input
                     type="radio"
@@ -139,6 +180,7 @@ function App() {
                   />
                   In Progress
                 </label>
+
                 <label>
                   <input
                     type="radio"
@@ -156,16 +198,61 @@ function App() {
               <button type="button" className="btn btn-secondary">
                 Add Photo
               </button>
+
               <div className="buttons-right">
                 <button type="button" className="btn btn-ghost">
                   Cancel
                 </button>
+
                 <button type="submit" className="btn btn-primary">
                   Save Entry
                 </button>
               </div>
             </div>
           </form>
+
+          {/* 🔥 DATA TABLE BELOW FORM */}
+          {showData && (
+            <div style={{ marginTop: "20px" }}>
+              <h3>All Incidents</h3>
+
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reported By</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {incidents.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center" }}>
+                        No data found
+                      </td>
+                    </tr>
+                  ) : (
+                    incidents.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.id}</td>
+                        <td>{item.date?.split("T")[0]}</td>
+                        <td>{item.time}</td>
+                        <td>{item.reported_by}</td>
+                        <td>{item.description}</td>
+                        <td>{item.action_taken}</td>
+                        <td>{item.status}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       </main>
     </div>
