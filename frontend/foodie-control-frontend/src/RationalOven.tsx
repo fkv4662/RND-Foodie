@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { deleteLog, deleteAllLogs } from "./api";
 
-interface FridgeLog {
+interface OvenLog {
   device_name: string;
+  food_item?: string;
   temperature: number;
-  humidity: number;
   status: string;
   recorded_at: string;
 }
 
-export default function RationalFridge() {
-  const [logs, setLogs] = useState<FridgeLog[]>([]);
-  const [alerts, setAlerts] = useState<FridgeLog[]>([]);
+export default function RationalOven() {
+  const [logs, setLogs] = useState<OvenLog[]>([]);
+  const [alerts, setAlerts] = useState<OvenLog[]>([]);
   const [showAlerts, setShowAlerts] = useState(false);
 
   // Summary calculations
@@ -21,8 +21,8 @@ export default function RationalFridge() {
   // POLLING: Fetch logs and alerts every 5 seconds
   useEffect(() => {
     const fetchData = () => {
-      fetch("/api/fridge/logs").then((res) => res.json()).then(setLogs);
-      fetch("/api/fridge/alerts").then((res) => res.json()).then(setAlerts);
+      fetch("/api/oven/logs").then((res) => res.json()).then(setLogs);
+      fetch("/api/oven/alerts").then((res) => res.json()).then(setAlerts);
     };
     fetchData();
     const interval = setInterval(fetchData, 5000);
@@ -31,13 +31,13 @@ export default function RationalFridge() {
 
   // Helper to refresh logs/alerts
   const refresh = () => {
-    fetch("/api/fridge/logs").then((res) => res.json()).then(setLogs);
-    fetch("/api/fridge/alerts").then((res) => res.json()).then(setAlerts);
+    fetch("/api/oven/logs").then((res) => res.json()).then(setLogs);
+    fetch("/api/oven/alerts").then((res) => res.json()).then(setAlerts);
   };
 
   return (
     <div style={{ background: '#f7f7f7', minHeight: '100vh', fontFamily: 'Arial, sans-serif', padding: '2em' }}>
-      <h1 style={{ color: '#2a4d69', marginBottom: 0 }}>Rational Fridge Monitoring</h1>
+      <h1 style={{ color: '#2a4d69', marginBottom: 0 }}>Rational Oven Monitoring</h1>
       {/* Summary Section */}
       <div style={{ display: 'flex', gap: '2em', alignItems: 'center', margin: '1.5em 0 1em 0', flexWrap: 'wrap' }}>
         <div style={{ background: '#fff', borderRadius: '10px', boxShadow: '0 2px 8px #0001', padding: '1em 2em', minWidth: 180, textAlign: 'center' }}>
@@ -49,7 +49,7 @@ export default function RationalFridge() {
           <div style={{ color: '#2a4d69', fontWeight: 600, fontSize: '1.1em' }}>Avg Temp (°C)</div>
         </div>
       </div>
-      <FridgeForm onSubmit={() => {
+      <OvenForm onSubmit={() => {
         setTimeout(refresh, 500);
       }} />
       <div style={{ marginBottom: '2em', display: 'flex', alignItems: 'center', gap: '1em' }}>
@@ -68,63 +68,63 @@ export default function RationalFridge() {
         </button>
       </div>
       {!showAlerts ? (
-        <FridgeLogsTable logs={logs} onDelete={async (id) => { await deleteLog(id); refresh(); }} />
+        <OvenLogsTable logs={logs} onDelete={async (id) => { await deleteLog(id); refresh(); }} />
       ) : (
-        <FridgeLogsTable logs={alerts} onDelete={async (id) => { await deleteLog(id); refresh(); }} />
+        <OvenLogsTable logs={alerts} onDelete={async (id) => { await deleteLog(id); refresh(); }} />
       )}
     </div>
   );
 }
 
-function FridgeForm({ onSubmit }: { onSubmit: () => void }) {
+function OvenForm({ onSubmit }: { onSubmit: () => void }) {
   const [device_name, setDeviceName] = useState("");
+  const [food_item, setFoodItem] = useState("");
   const [temperature, setTemperature] = useState("");
-  const [humidity, setHumidity] = useState("");
   const [result, setResult] = useState("");
 
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        const res = await fetch("/api/fridge/log", {
+        const res = await fetch("/api/oven/log", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             device_name,
+            food_item,
             temperature: parseFloat(temperature),
-            humidity: parseFloat(humidity),
           }),
         });
         const data = await res.json();
         setResult(JSON.stringify(data, null, 2));
         setDeviceName("");
+        setFoodItem("");
         setTemperature("");
-        setHumidity("");
         onSubmit();
       }}
       style={{ background: '#fff', padding: '1em', marginBottom: '2em', borderRadius: '8px', boxShadow: '0 2px 8px #0001' }}
     >
       <label>Device Name: <input type="text" value={device_name} onChange={e => setDeviceName(e.target.value)} required /></label>
+      <label>Food Item: <input type="text" value={food_item} onChange={e => setFoodItem(e.target.value)} required /></label>
       <label>Temperature (°C): <input type="number" value={temperature} onChange={e => setTemperature(e.target.value)} required /></label>
-      <label>Humidity (%): <input type="number" value={humidity} onChange={e => setHumidity(e.target.value)} required /></label>
       <button type="submit">Submit Log</button>
       <div style={{ marginTop: '1em' }}>{result && <pre>{result}</pre>}</div>
     </form>
   );
 }
 
-function FridgeLogsTable({ logs, onDelete }: { logs: any[]; onDelete: (id: number) => void }) {
+function OvenLogsTable({ logs, onDelete }: { logs: any[]; onDelete: (id: number) => void }) {
   return (
     <div style={{ background: '#fff', padding: '1.5em', borderRadius: '14px', boxShadow: '0 4px 24px #0002', marginBottom: '2em' }}>
       <h2 style={{ fontWeight: 700, fontSize: '1.5em', marginBottom: '0.5em' }}>
-        {logs.length && logs[0].status === 'ALERT' ? 'Alerts Only' : 'All Fridge Logs'}
+        {logs.length && logs[0].status === 'ALERT' ? 'Alerts Only' : 'All Oven Logs'}
       </h2>
       <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, marginTop: '1em', fontSize: '1.1em', boxShadow: '0 1px 4px #0001' }}>
         <thead>
           <tr style={{ background: '#f0f4f8', color: '#2a4d69' }}>
             <th style={{ padding: '12px 8px', borderTopLeftRadius: '8px' }}>Device</th>
+            <th style={{ padding: '12px 8px' }}>Food Item</th>
             <th style={{ padding: '12px 8px' }}>Temperature (°C)</th>
-            <th style={{ padding: '12px 8px' }}>Humidity (%)</th>
             <th style={{ padding: '12px 8px' }}>Status</th>
             <th style={{ padding: '12px 8px' }}>Recorded At</th>
             <th style={{ padding: '12px 8px', borderTopRightRadius: '8px' }}>Delete</th>
@@ -147,10 +147,10 @@ function FridgeLogsTable({ logs, onDelete }: { logs: any[]; onDelete: (id: numbe
                 onMouseOut={e => (e.currentTarget.style.background = isAlert ? '#fff0f0' : idx % 2 === 0 ? '#f9fbfd' : '#f3f6fa')}
               >
                 <td style={{ padding: '10px 8px' }}>{log.device_name}</td>
-                <td style={{ padding: '10px 8px', color: log.temperature > 5 ? '#e74c3c' : '#2ecc71', fontWeight: 600 }}>
+                <td style={{ padding: '10px 8px' }}>{log.food_item}</td>
+                <td style={{ padding: '10px 8px', color: log.temperature < 75 ? '#e74c3c' : '#2ecc71', fontWeight: 600 }}>
                   {log.temperature}
                 </td>
-                <td style={{ padding: '10px 8px' }}>{log.humidity}</td>
                 <td style={{ padding: '10px 8px' }}>
                   {isAlert ? (
                     <span style={{ color: '#e74c3c', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>

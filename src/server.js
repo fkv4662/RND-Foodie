@@ -1,6 +1,9 @@
 require("dotenv").config();
 require("./db");
 
+require("dotenv").config();
+require("./db");
+
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -14,7 +17,8 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET || 'super_secret_key';
 
 // Middleware to protect fridge.html
-app.get('/fridge.html', (req, res, next) => {
+// Middleware to protect oven.html
+app.get('/oven.html', (req, res, next) => {
   let token = null;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     token = req.headers.authorization.split(' ')[1];
@@ -29,7 +33,7 @@ app.get('/fridge.html', (req, res, next) => {
   try {
     jwt.verify(token, SECRET);
     console.log('Token valid');
-    return res.sendFile(__dirname + '/public/fridge.html');
+    return res.sendFile(__dirname + '/public/oven.html');
   } catch (err) {
     console.log('Token verification error:', err.message);
     return res.status(401).send('Unauthorized: Invalid token');
@@ -39,10 +43,9 @@ app.get('/fridge.html', (req, res, next) => {
 app.use(express.static(__dirname + '/public'));
 
 // Routers
-const rationalFridgeRouter = require('./routes/rationalFridge.routes');
+const ovenRouter = require('./routes/oven.routes');
 const authRouter = require('./routes/auth.routes');
-const fridgeRouter = require('./routes/fridge.routes');
-app.use('/api/fridge', fridgeRouter);
+app.use('/api/oven', ovenRouter);
 app.use('/api/auth', authRouter);
 
 // Database test route
@@ -62,10 +65,7 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
-const { initTables } = require('./initTables');
-
 app.listen(PORT, async () => {
-  await initTables();
   console.log(`Server running on http://localhost:${PORT}`);
   await seedAdmin();
 });

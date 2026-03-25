@@ -1,7 +1,7 @@
 // Example API integration using fetch and axios
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:4000/api/fridge';
+const API_BASE = 'http://localhost:4000/api/oven';
 
 export async function fetchLogs() {
   const res = await fetch(`${API_BASE}/logs`);
@@ -13,7 +13,7 @@ export async function fetchAlerts() {
   return res.json();
 }
 
-export async function postLog(data: { device_name: string; temperature: number; humidity: number }) {
+export async function postLog(data: { device_name: string; food_item: string; temperature: number }) {
   const res = await axios.post(`${API_BASE}/log`, data);
   return res.data;
 }

@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import Login from './Login';
 import CCP from './CCP';
-import RationalFridge from './RationalFridge';
+import RationalOven from './RationalOven';
 
 const App = () => (
   <BrowserRouter>
@@ -13,7 +13,7 @@ const App = () => (
       <Route path="/" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/ccp" element={<CCP />} />
-      <Route path="/rational-fridges" element={<RationalFridge />} />
+      <Route path="/rational-ovens" element={<RationalOven />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </BrowserRouter>

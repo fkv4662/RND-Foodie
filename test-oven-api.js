@@ -1,14 +1,14 @@
-// Quick test script for fridge API endpoints
+// Quick test script for oven API endpoints
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:4000/api/fridge';
+const BASE_URL = 'http://localhost:4000/api/oven';
 
 async function testPostLog() {
   try {
     const res = await axios.post(`${BASE_URL}/log`, {
-      device_name: 'Fridge 1',
-      temperature: 3,
-      humidity: 40
+      device_name: 'Oven 1',
+      food_item: 'Chicken',
+      temperature: 78
     });
     console.log('POST /log response:', res.data);
   } catch (err) {

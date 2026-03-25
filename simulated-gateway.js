@@ -1,23 +1,24 @@
-// Simulated Gateway: Sends random fridge data to your API every 5 seconds
+// Simulated Gateway: Sends random oven data to your API every 5 seconds
 const axios = require('axios');
 
-const API_URL = 'http://localhost:4000/api/fridge/log';
-const DEVICE_NAME = 'Simulated Fridge 1';
+const API_URL = 'http://localhost:4000/api/oven/log';
+const DEVICE_NAME = 'Simulated Oven 1';
+const FOOD_ITEMS = ['Chicken', 'Rice', 'Beef', 'Fish', 'Vegetables'];
 
 function getRandomTemperature() {
-  // Simulate normal fridge temps, sometimes above safe
-  return +(Math.random() * 6).toFixed(1); // 0.0 to 6.0
+  // Simulate oven cooking temps: 60–90°C
+  return +(60 + Math.random() * 30).toFixed(1); // 60.0 to 90.0
 }
 
-function getRandomHumidity() {
-  return +(30 + Math.random() * 30).toFixed(1); // 30 to 60
+function getRandomFoodItem() {
+  return FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)];
 }
 
 async function sendReading() {
   const data = {
     device_name: DEVICE_NAME,
-    temperature: getRandomTemperature(),
-    humidity: getRandomHumidity()
+    food_item: getRandomFoodItem(),
+    temperature: getRandomTemperature()
   };
   try {
     const res = await axios.post(API_URL, data);
@@ -28,4 +29,4 @@ async function sendReading() {
 }
 
 setInterval(sendReading, 5000);
-console.log('Simulated gateway started. Sending data every 5 seconds...');
+console.log('Simulated oven gateway started. Sending data every 5 seconds...');
