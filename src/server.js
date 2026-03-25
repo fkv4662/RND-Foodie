@@ -41,7 +41,8 @@ app.use(express.static(__dirname + '/public'));
 // Routers
 const rationalFridgeRouter = require('./routes/rationalFridge.routes');
 const authRouter = require('./routes/auth.routes');
-app.use('/api/fridge', rationalFridgeRouter);
+const fridgeRouter = require('./routes/fridge.routes');
+app.use('/api/fridge', fridgeRouter);
 app.use('/api/auth', authRouter);
 
 // Database test route
