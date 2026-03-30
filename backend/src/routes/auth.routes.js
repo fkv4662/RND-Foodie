@@ -6,14 +6,14 @@ const { pool } = require("../db");
 
 const SECRET = process.env.JWT_SECRET || "super_secret_key";
 
-// Register route
+// REGISTER
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { name, email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Username, email, and password required",
+      message: "Email and password required",
     });
   }
 
@@ -33,14 +33,16 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await pool.query(
-      `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
-      [username, email, hashedPassword]
+      `INSERT INTO users (name, email, password_hash, role, is_active)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [name || "User", email, hashedPassword, "user", true]
     );
 
     return res.json({
       success: true,
       message: "Registration successful",
     });
+
   } catch (err) {
     console.error("Register error:", err);
     return res.status(500).json({
@@ -50,17 +52,11 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login route
+// LOGIN
 router.post("/login", async (req, res) => {
+  console.log("Login body:", req.body);
+
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Email and password required",
-    });
-  }
-
   try {
     const userRes = await pool.query(
       "SELECT * FROM users WHERE email = $1",
@@ -76,7 +72,7 @@ router.post("/login", async (req, res) => {
 
     const user = userRes.rows[0];
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {
       return res.status(401).json({
@@ -99,13 +95,8 @@ router.post("/login", async (req, res) => {
       success: true,
       token,
       message: "Login successful",
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
     });
+
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).json({
