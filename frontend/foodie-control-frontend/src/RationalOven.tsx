@@ -110,68 +110,68 @@ function OvenForm({ onSubmit }: { onSubmit: () => void }) {
 }
 
 function OvenLogsTable({ logs, onDelete }: { logs: any[]; onDelete: (id: number) => void }) {
-	return (
-		<div style={{ background: '#fff', padding: '1.5em', borderRadius: '14px', boxShadow: '0 4px 24px #0002', marginBottom: '2em' }}>
-			<h2 style={{ fontWeight: 700, fontSize: '1.5em', marginBottom: '0.5em' }}>
-				{logs.length && logs[0].status === 'ALERT' ? 'Alerts Only' : 'All Oven Logs'}
-			</h2>
-			<table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, marginTop: '1em', fontSize: '1.1em', boxShadow: '0 1px 4px #0001' }}>
-				<thead>
-					<tr style={{ background: '#f0f4f8', color: '#2a4d69' }}>
-						<th style={{ padding: '12px 8px', borderTopLeftRadius: '8px' }}>Device</th>
-						<th style={{ padding: '12px 8px' }}>Food Item</th>
-						<th style={{ padding: '12px 8px' }}>Temperature (°C)</th>
-						<th style={{ padding: '12px 8px' }}>Status</th>
-						<th style={{ padding: '12px 8px' }}>Recorded At</th>
-						<th style={{ padding: '12px 8px', borderTopRightRadius: '8px' }}>Delete</th>
-					</tr>
-				</thead>
-				<tbody>
-					{logs.map((log, idx) => {
-						const isAlert = log.status === 'ALERT';
-						return (
-							<tr
-								key={log.id || idx}
-								style={{
-									background: isAlert ? '#fff0f0' : idx % 2 === 0 ? '#f9fbfd' : '#f3f6fa',
-									transition: 'background 0.2s',
-									borderLeft: isAlert ? '6px solid #e74c3c' : '6px solid transparent',
-									fontWeight: isAlert ? 700 : 400,
-									boxShadow: isAlert ? '0 2px 8px #e74c3c22' : undefined,
-								}}
-								onMouseOver={e => (e.currentTarget.style.background = isAlert ? '#ffeaea' : '#eaf3fa')}
-								onMouseOut={e => (e.currentTarget.style.background = isAlert ? '#fff0f0' : idx % 2 === 0 ? '#f9fbfd' : '#f3f6fa')}
-							>
-								<td style={{ padding: '10px 8px' }}>{log.device_name}</td>
-								<td style={{ padding: '10px 8px' }}>{log.food_item}</td>
-								<td style={{ padding: '10px 8px', color: log.temperature < 75 ? '#e74c3c' : '#2ecc71', fontWeight: 600 }}>
-									{log.temperature}
-								</td>
-								<td style={{ padding: '10px 8px' }}>
-									{isAlert ? (
-										<span style={{ color: '#e74c3c', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-											<span style={{ fontSize: '1.2em' }}>⚠️</span> ALERT
-										</span>
-									) : (
-										<span style={{ color: '#2ecc71', fontWeight: 600 }}>SAFE</span>
-									)}
-								</td>
-								<td style={{ padding: '10px 8px', fontFamily: 'monospace', fontSize: '0.98em' }}>{log.recorded_at}</td>
-								<td style={{ padding: '10px 8px' }}>
-									<button
-										style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3em 0.8em', cursor: 'pointer', fontWeight: 700, fontSize: '1em', boxShadow: '0 1px 4px #e74c3c22' }}
-										onClick={() => {
-											if (window.confirm('Delete this log?')) onDelete(log.id);
-										}}
-									>
-										Delete
-									</button>
-								</td>
-							</tr>
-						);
-					})}
-				</tbody>
-			</table>
-		</div>
-	);
+		return (
+			<div style={{ background: '#fff', padding: '1.5em', borderRadius: '14px', boxShadow: '0 4px 24px #0002', marginBottom: '2em' }}>
+				<h2 style={{ fontWeight: 700, fontSize: '1.5em', marginBottom: '0.5em' }}>
+					{logs.length && logs[0].status === 'ALERT' ? 'Alerts Only' : 'All Oven Logs'}
+				</h2>
+				<table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, marginTop: '1em', fontSize: '1.1em', boxShadow: '0 1px 4px #0001' }}>
+					<thead>
+						<tr style={{ background: '#f0f4f8', color: '#2a4d69' }}>
+							<th style={{ padding: '12px 8px', borderTopLeftRadius: '8px' }}>Device</th>
+							<th style={{ padding: '12px 8px' }}>Food Item</th>
+							<th style={{ padding: '12px 8px' }}>Temperature (°C)</th>
+							<th style={{ padding: '12px 8px' }}>Status</th>
+							<th style={{ padding: '12px 8px' }}>Recorded At</th>
+							<th style={{ padding: '12px 8px', borderTopRightRadius: '8px' }}>Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						{logs.map((log, idx) => {
+							const isAlert = log.status === 'ALERT';
+							return (
+								<tr
+									key={log.id || idx}
+									style={{
+										background: isAlert ? '#fff0f0' : idx % 2 === 0 ? '#f9fbfd' : '#f3f6fa',
+										transition: 'background 0.2s',
+										borderLeft: isAlert ? '6px solid #e74c3c' : '6px solid transparent',
+										fontWeight: isAlert ? 700 : 400,
+										boxShadow: isAlert ? '0 2px 8px #e74c3c22' : undefined,
+									}}
+									onMouseOver={e => (e.currentTarget.style.background = isAlert ? '#ffeaea' : '#eaf3fa')}
+									onMouseOut={e => (e.currentTarget.style.background = isAlert ? '#fff0f0' : idx % 2 === 0 ? '#f9fbfd' : '#f3f6fa')}
+								>
+									<td style={{ padding: '10px 8px' }}>{log.device_name}</td>
+									<td style={{ padding: '10px 8px' }}>{log.food_item}</td>
+									<td style={{ padding: '10px 8px', color: log.temperature < 75 ? '#e74c3c' : '#2ecc71', fontWeight: 600 }}>
+										{log.temperature}
+									</td>
+									<td style={{ padding: '10px 8px' }}>
+										{isAlert ? (
+											<span style={{ color: '#e74c3c', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+												<span style={{ fontSize: '1.2em' }}>⚠️</span> ALERT
+											</span>
+										) : (
+											<span style={{ color: '#2ecc71', fontWeight: 600 }}>SAFE</span>
+										)}
+									</td>
+									<td style={{ padding: '10px 8px', fontFamily: 'monospace', fontSize: '0.98em' }}>{log.recorded_at}</td>
+									<td style={{ padding: '10px 8px' }}>
+										<button
+											style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3em 0.8em', cursor: 'pointer', fontWeight: 700, fontSize: '1em', boxShadow: '0 1px 4px #e74c3c22' }}
+											onClick={() => {
+												if (window.confirm('Delete this log?')) onDelete(log.id);
+											}}
+										>
+											Delete
+										</button>
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</div>
+		);
 }
