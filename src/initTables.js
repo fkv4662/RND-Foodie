@@ -19,7 +19,17 @@ async function initTables() {
   if (result.rows.length === 0) {
     await pool.query(`ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE`);
   }
-  // Add more table creation/alteration queries here if needed
+  // Create oven_logs table if it doesn't exist
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS oven_logs (
+      id SERIAL PRIMARY KEY,
+      device_name TEXT NOT NULL,
+      food_item TEXT,
+      temperature NUMERIC NOT NULL,
+      status TEXT NOT NULL,
+      recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 }
 
 module.exports = { initTables };
