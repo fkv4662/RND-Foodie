@@ -7,6 +7,7 @@ const app = express();
 
 const { seedAdmin } = require('./seedAdmin');
 const { initTables } = require('./initTables');
+const { ingestMockTestoReadings } = require('./services/testoService');
 
 app.use(cors());
 app.use(express.json());
@@ -15,8 +16,11 @@ app.use(express.static(__dirname + '/public'));
 // Routers
 const ovenRouter = require('./routes/oven.routes');
 const authRouter = require('./routes/auth.routes');
+const testoRouter = require('./routes/testo.routes');
+
 app.use('/api/oven', ovenRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/testo', testoRouter);
 
 // Database test route
 const { pool } = require('./db');
@@ -35,8 +39,35 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
+function startTestoScheduler() {
+  const FIVE_MINUTES = 5 * 60 * 1000;
+
+  setInterval(async () => {
+    try {
+      const result = await ingestMockTestoReadings();
+      console.log('Scheduled Testo ingestion:', result);
+    } catch (error) {
+      console.error('Scheduled Testo ingestion failed:', error.message);
+    }
+  }, FIVE_MINUTES);
+}
+
 app.listen(PORT, async () => {
   await initTables();
   console.log(`Server running on http://localhost:${PORT}`);
-  await seedAdmin();
+
+  try {
+    await seedAdmin();
+  } catch (error) {
+    console.error('Admin seed warning:', error.message);
+  }
+
+  try {
+    const result = await ingestMockTestoReadings();
+    console.log('Initial Testo ingestion:', result);
+  } catch (error) {
+    console.error('Initial Testo ingestion failed:', error.message);
+  }
+
+  startTestoScheduler();
 });

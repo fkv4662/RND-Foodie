@@ -16,10 +16,12 @@ async function initTables() {
     SELECT column_name FROM information_schema.columns
     WHERE table_name = 'users' AND column_name = 'email'
   `);
+
   if (result.rows.length === 0) {
     await pool.query(`ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE`);
   }
-  // Create oven_logs table if it doesn't exist
+
+  // Existing oven logs table
   await pool.query(`
     CREATE TABLE IF NOT EXISTS oven_logs (
       id SERIAL PRIMARY KEY,
@@ -28,6 +30,23 @@ async function initTables() {
       temperature NUMERIC NOT NULL,
       status TEXT NOT NULL,
       recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // New Testo fridge readings table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS testo_readings (
+      id SERIAL PRIMARY KEY,
+      source VARCHAR(50) NOT NULL DEFAULT 'TESTO_CLOUD',
+      external_id VARCHAR(255) UNIQUE,
+      device_id VARCHAR(255) NOT NULL,
+      device_name VARCHAR(255) NOT NULL,
+      location VARCHAR(255),
+      temperature DECIMAL NOT NULL,
+      humidity DECIMAL,
+      status VARCHAR(10) NOT NULL,
+      recorded_at TIMESTAMP NOT NULL,
+      imported_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);
 }
