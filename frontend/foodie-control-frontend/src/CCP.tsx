@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-
 export default function CCP() {
   const navigate = useNavigate();
   return (
@@ -13,6 +12,14 @@ export default function CCP() {
         <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => navigate('/rational-fridges')}>
           <div style={{ fontSize: '120px', color: '#5bc0eb' }}>❄️</div>
           <div style={{ fontSize: '32px', marginTop: '12px' }}>Rational Fridges</div>
+        </div>
+        <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => navigate('/rational-oven')}>
+          <div style={{ fontSize: '120px', color: '#e67e22' }}>🍞</div>
+          <div style={{ fontSize: '32px', marginTop: '12px' }}>Rational oven</div>
+        </div>
+        <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => navigate('/testo-fridge')}>
+          <div style={{ fontSize: '120px', color: '#5bc0eb' }}>🧊</div>
+          <div style={{ fontSize: '32px', marginTop: '12px' }}>Testo fridge</div>
         </div>
         <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => navigate('/hot-food-check')}>
           <div style={{ fontSize: '120px', color: '#3498db' }}>📄</div>

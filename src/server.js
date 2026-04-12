@@ -1,48 +1,26 @@
-require("dotenv").config();
-require("./db");
+require('dotenv').config();
+require('./db');
 
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
 const app = express();
 
-const { seedAdmin } = require("./seedAdmin");
+const { seedAdmin } = require('./seedAdmin');
+const { initTables } = require('./initTables');
+const { ingestMockTestoReadings } = require('./services/testoService');
 
 app.use(cors());
 app.use(express.json());
-
-const jwt = require('jsonwebtoken');
-const SECRET = process.env.JWT_SECRET || 'super_secret_key';
-
-// Middleware to protect fridge.html
-app.get('/fridge.html', (req, res, next) => {
-  let token = null;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-    token = req.headers.authorization.split(' ')[1];
-  } else if (req.query.token) {
-    token = req.query.token;
-  }
-  console.log('Token received:', token);
-  if (!token) {
-    console.log('No token provided');
-    return res.status(401).send('Unauthorized: No token provided');
-  }
-  try {
-    jwt.verify(token, SECRET);
-    console.log('Token valid');
-    return res.sendFile(__dirname + '/public/fridge.html');
-  } catch (err) {
-    console.log('Token verification error:', err.message);
-    return res.status(401).send('Unauthorized: Invalid token');
-  }
-});
-
 app.use(express.static(__dirname + '/public'));
 
 // Routers
-const rationalFridgeRouter = require('./routes/rationalFridge.routes');
+const ovenRouter = require('./routes/oven.routes');
 const authRouter = require('./routes/auth.routes');
-app.use('/api/fridge', rationalFridgeRouter);
+const testoRouter = require('./routes/testo.routes');
+
+app.use('/api/oven', ovenRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/testo', testoRouter);
 
 // Database test route
 const { pool } = require('./db');
@@ -55,16 +33,41 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Foodie Control Backend Running");
+app.get('/', (req, res) => {
+  res.send('Foodie Control Backend Running');
 });
 
 const PORT = process.env.PORT || 4000;
 
-const { initTables } = require('./initTables');
+function startTestoScheduler() {
+  const FIVE_MINUTES = 5 * 60 * 1000;
+
+  setInterval(async () => {
+    try {
+      const result = await ingestMockTestoReadings();
+      console.log('Scheduled Testo ingestion:', result);
+    } catch (error) {
+      console.error('Scheduled Testo ingestion failed:', error.message);
+    }
+  }, FIVE_MINUTES);
+}
 
 app.listen(PORT, async () => {
   await initTables();
   console.log(`Server running on http://localhost:${PORT}`);
-  await seedAdmin();
+
+  try {
+    await seedAdmin();
+  } catch (error) {
+    console.error('Admin seed warning:', error.message);
+  }
+
+  try {
+    const result = await ingestMockTestoReadings();
+    console.log('Initial Testo ingestion:', result);
+  } catch (error) {
+    console.error('Initial Testo ingestion failed:', error.message);
+  }
+
+  startTestoScheduler();
 });
