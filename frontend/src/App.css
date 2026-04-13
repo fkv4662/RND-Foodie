@@ -1,109 +1,89 @@
-* {
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
+/* RESET */
 body {
   margin: 0;
-  background: #f3f4f6;
+  font-family: "Segoe UI", sans-serif;
+  background: #f1f5f9;
 }
 
+/* MAIN LAYOUT */
 .app-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
-/* Sidebar */
-
+/* SIDEBAR */
 .sidebar {
   width: 220px;
-  background: #111827;
-  color: #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 16px;
+  background: #0f172a;
+  color: white;
+  padding: 20px;
 }
 
 .sidebar-logo {
-  font-weight: 700;
+  font-weight: bold;
   font-size: 18px;
-  margin-bottom: 24px;
-  color: #f9fafb;
+  margin-bottom: 30px;
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .nav-item {
-  text-align: left;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: none;
   background: transparent;
-  color: #d1d5db;
+  border: none;
+  color: #cbd5f5;
+  padding: 10px;
+  text-align: left;
   cursor: pointer;
-  font-size: 14px;
+  border-radius: 6px;
 }
 
 .nav-item:hover {
-  background: #1f2937;
+  background: #1e293b;
 }
 
 .nav-item-active {
   background: #2563eb;
-  color: #f9fafb;
+  color: white;
 }
 
-/* Main */
-
+/* MAIN AREA */
 .main {
   flex: 1;
-  padding: 24px 32px;
+  padding: 30px;
 }
 
+/* HEADER */
 .main-header h1 {
-  margin: 0 0 8px;
-  font-size: 24px;
-  color: #111827;
+  margin: 0;
 }
 
 .subtitle {
-  margin: 0 0 20px;
-  color: #4b5563;
-  font-size: 14px;
-  max-width: 700px;
+  color: #64748b;
+  margin-bottom: 20px;
 }
 
-/* Card */
-
+/* CARD */
 .card {
-  background: #ffffff;
+  background: white;
+  padding: 25px;
   border-radius: 12px;
-  padding: 20px 24px 24px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
 }
 
-.card-title {
-  margin: 0 0 16px;
-  font-size: 18px;
-  color: #111827;
-}
-
-/* Form */
-
+/* FORM */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 15px;
 }
 
 .row {
   display: flex;
-  gap: 16px;
+  gap: 15px;
 }
 
 .field {
@@ -114,72 +94,43 @@ body {
 
 .field label {
   font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  color: #475569;
 }
 
-.field input,
-.field textarea,
-.field select {
+/* INPUTS */
+input,
+textarea,
+select {
+  padding: 10px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
   font-size: 14px;
+}
+
+input:focus,
+textarea:focus {
   outline: none;
-  background: #f9fafb;
-}
-
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
   border-color: #2563eb;
-  background: #ffffff;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
 }
 
-/* Status */
-
+/* STATUS RADIO */
 .status-options {
   display: flex;
-  gap: 16px;
-  margin-top: 4px;
-  font-size: 14px;
-  color: #374151;
+  gap: 15px;
 }
 
-.status-options input {
-  margin-right: 4px;
-}
-
-/* Buttons */
-
-.buttons-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.buttons-right {
-  display: flex;
-  gap: 8px;
-}
-
+/* BUTTONS */
 .btn {
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .btn-primary {
   background: #2563eb;
-  color: #f9fafb;
+  color: white;
 }
 
 .btn-primary:hover {
@@ -187,47 +138,64 @@ body {
 }
 
 .btn-secondary {
-  background: #e5e7eb;
-  color: #111827;
-}
-
-.btn-secondary:hover {
-  background: #d1d5db;
+  background: #e2e8f0;
 }
 
 .btn-ghost {
   background: transparent;
-  color: #6b7280;
 }
 
-.btn-ghost:hover {
-  background: #f3f4f6;
+/* BUTTON ROW */
+.buttons-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Responsive */
+.buttons-right {
+  display: flex;
+  gap: 10px;
+}
 
-@media (max-width: 900px) {
-  .app-container {
-    flex-direction: column;
-  }
+/* 🔥 TABLE FIX (TIDY LIKE YOUR UI) */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
 
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
+.table thead {
+  background: #0f172a;
+}
 
-  .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
+.table th {
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
 
-  .main {
-    padding: 16px;
-  }
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+}
 
-  .row {
-    flex-direction: column;
-  }
+/* Zebra rows */
+.table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Hover */
+.table tr:hover {
+  background: #e0f2fe;
+}
+
+/* Fix long text */
+.table td {
+  max-width: 200px;
+  word-break: break-word;
 }
