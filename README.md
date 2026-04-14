@@ -15,7 +15,8 @@ npm -v
 Clone the Repository
 ```in terminal
 git clone <REPO_URL>
-cd foodie-control-backend
+cd fronted 'for frontend terminal'
+cd backend 'for backend terminal'
 ```
 
 Install Dependencies
