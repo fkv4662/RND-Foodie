@@ -16,14 +16,14 @@ export default function Admin() {
       name: "SHAZIA",
       email: "shaziasultani@example.com",
       role: "MANAGER",
-      lastActive: "5 min ago",
+      lastActive: "newActive",
     },
     {
       id: 2,
       name: "TOMMY",
       email: "tommy@example.com",
       role: "CHEF",
-      lastActive: "5 min ago",
+      lastActive: "newActive",
     },
     {
       id: 3,
@@ -37,7 +37,7 @@ export default function Admin() {
       name: "THARSIKAN",
       email: "tharsikan@example.com",
       role: "STAFF",
-      lastActive: "5 min ago",
+      lastActive: "newActive",
     },
     {
       id: 5,
