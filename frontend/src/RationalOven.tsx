@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DashboardLayout from "./DashboardLayout";
 
 interface OvenLog {
 	id?: number;
