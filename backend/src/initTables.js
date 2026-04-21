@@ -49,6 +49,44 @@ async function initTables() {
       imported_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);
+
+  // CCP tasks table - Shazia
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS ccp_tasks (
+      id SERIAL PRIMARY KEY,
+      task_name VARCHAR(100),
+      temperature DECIMAL(5,2),
+      time_recorded VARCHAR(20),
+      notes TEXT,
+      status VARCHAR(20),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // CCP logs table - Shazia
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS ccp_logs (
+      id SERIAL PRIMARY KEY,
+      date_recorded DATE,
+      time_recorded VARCHAR(20),
+      temperature DECIMAL(5,2),
+      humidity DECIMAL(5,2),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Hot food checks table - Shazia
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hot_food_checks (
+      id SERIAL PRIMARY KEY,
+      food_item VARCHAR(100),
+      batch_id VARCHAR(50),
+      temperature DECIMAL(5,2),
+      action_taken TEXT,
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 }
 
 module.exports = { initTables };

@@ -30,11 +30,11 @@ export default function CCPLogs() {
 
   const fetchLogs = async () => {
     try {
-      const response1 = await fetch("http://localhost:5000/api/ccp/logs");
+      const response1 = await fetch("http://localhost:4000/api/ccp/logs");
       const data1 = await response1.json();
       setSensorLogs(data1);
 
-      const response2 = await fetch("http://localhost:5000/api/ccp/tasks");
+      const response2 = await fetch("http://localhost:4000/api/ccp/tasks");
       const data2 = await response2.json();
       setManualLogs(data2);
 
@@ -54,7 +54,7 @@ export default function CCPLogs() {
 
       {/* Back button */}
       <div style={{ padding: "10px 20px" }}>
-        <button onClick={() => navigate('/ccp')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
+        <button onClick={() => navigate('/tasks')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
           ← Back to CCP
         </button>
       </div>

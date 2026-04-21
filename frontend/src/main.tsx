@@ -12,7 +12,7 @@ import CCPChecks from './CCPChecks';
 import HotFoodCheck from './HotFoodCheck';
 import CCPLogs from './CCPLogs';
 import Admin from "./Admin";
-
+import Tasks from './Tasks';
 const App = () => (
   <BrowserRouter>
     <Routes>
@@ -25,6 +25,7 @@ const App = () => (
       <Route path="/hot-food-check" element={<HotFoodCheck />} />
       <Route path="/ccp-logs" element={<CCPLogs />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/tasks" element={<Tasks />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </BrowserRouter>

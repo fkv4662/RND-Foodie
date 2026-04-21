@@ -18,7 +18,7 @@ export default function HotFoodCheck() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:5000/api/ccp/hotfood", {
+      const response = await fetch("http://localhost:4000/api/ccp/hotfood", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,7 +53,7 @@ export default function HotFoodCheck() {
 
       {/* Back button */}
       <div style={{ padding: "10px 20px" }}>
-        <button onClick={() => navigate('/ccp')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
+        <button onClick={() => navigate('/tasks')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
           ← Back to CCP
         </button>
       </div>

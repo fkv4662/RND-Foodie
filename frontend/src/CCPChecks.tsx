@@ -39,7 +39,7 @@ export default function CCPChecks() {
     try {
       for (const task of tasks) {
         if (task.status !== null) {
-          await fetch("http://localhost:5000/api/ccp/tasks", {
+          await fetch("http://localhost:4000/api/ccp/tasks", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -69,7 +69,7 @@ export default function CCPChecks() {
 
       {/* Back button */}
       <div style={{ padding: "10px 20px" }}>
-        <button onClick={() => navigate('/ccp')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
+        <button onClick={() => navigate('/tasks')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
           ← Back to CCP
         </button>
       </div>
@@ -141,7 +141,11 @@ export default function CCPChecks() {
           <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
             <button onClick={handleSaveAll} style={{ backgroundColor: "green", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px" }}>✅ Save ALL</button>
             <button onClick={() => setTasks(tasks.map(t => ({ ...t, temperature: "", notes: "", status: null })))} style={{ backgroundColor: "red", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px" }}>❌ Cancel</button>
-            <button style={{ backgroundColor: "black", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px", marginLeft: "auto" }}>Submit Report</button>
+            <button 
+  onClick={() => navigate('/ccp-logs')}
+  style={{ backgroundColor: "black", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px", marginLeft: "auto" }}>
+  Submit Report
+</button>
           </div>
 
           {saved && (
