@@ -5,7 +5,7 @@ type UserRow = {
   id: number;
   name: string;
   email: string;
-  role: "CHEF" | "MANAGER" | "STAFF" | "AUDITOR" | "USER";
+  role: "CHEF" | "MANAGER"| "AUDITOR";
   lastActive: string;
 };
 
@@ -43,14 +43,14 @@ export default function Admin() {
       id: 5,
       name: "TAHA",
       email: "tahabazyan@example.com",
-      role: "STAFF",
+      role: "CHEF",
       lastActive: "5 min ago",
     },
     {
       id: 6,
       name: "THARSIKAN",
       email: "tharsikan@example.com",
-      role: "STAFF",
+      role: "CHEF",
       lastActive: "newActive",
     },
     {
@@ -465,9 +465,7 @@ export default function Admin() {
               >
                 <option value="CHEF">CHEF</option>
                 <option value="MANAGER">MANAGER</option>
-                <option value="STAFF">STAFF</option>
                 <option value="AUDITOR">AUDITOR</option>
-                <option value="USER">USER</option>
               </select>
 
               <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
