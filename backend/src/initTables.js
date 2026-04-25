@@ -87,6 +87,18 @@ async function initTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Notifications table - Shazia
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      message TEXT NOT NULL,
+      type VARCHAR(50) DEFAULT 'info',
+      is_read BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 }
 
 module.exports = { initTables };

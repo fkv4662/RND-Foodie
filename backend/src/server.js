@@ -18,11 +18,13 @@ const ovenRouter = require('./routes/oven.routes');
 const authRouter = require('./routes/auth.routes');
 const testoRouter = require('./routes/testo.routes');
 const ccpRouter = require('./routes/ccp.routes');
+const notificationsRouter = require('./routes/notifications.routes');
 
 app.use('/api/oven', ovenRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/testo', testoRouter);
 app.use('/api/ccp', ccpRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Database test route
 const { pool } = require('./db');

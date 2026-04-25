@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "./DashboardLayout";
 
 export default function HotFoodCheck() {
   const navigate = useNavigate();
@@ -31,6 +32,20 @@ export default function HotFoodCheck() {
       });
       const data = await response.json();
       if (data.message) {
+
+        // Auto create notification if temperature is below 75°C
+        if (parseFloat(temperature) < 75) {
+          await fetch("http://localhost:4000/api/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: "🚨 Temperature Alert!",
+              message: `Hot food check for "${foodItem}" recorded ${temperature}°C which is below the safe limit of 75°C. Immediate action required!`,
+              type: "alert"
+            })
+          });
+        }
+
         setSaved(true);
         setError("");
         setFoodItem("");
@@ -45,20 +60,9 @@ export default function HotFoodCheck() {
   };
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", backgroundColor: "#f0f0f0", minHeight: "100vh" }}>
-      {/* Header */}
-      <div style={{ backgroundColor: "black", color: "white", padding: "20px 30px", fontSize: "32px", fontWeight: "bold" }}>
-        FOODIE CONTROL PLAN
-      </div>
+    <DashboardLayout title="Hot Food Check">
+      <div style={{ maxWidth: "900px" }}>
 
-      {/* Back button */}
-      <div style={{ padding: "10px 20px" }}>
-        <button onClick={() => navigate('/tasks')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
-          ← Back to CCP
-        </button>
-      </div>
-
-      <div style={{ padding: "20px" }}>
         {temperature && (
           <div style={{ padding: "10px 15px", marginBottom: "15px", backgroundColor: isSafe ? "#e6ffe6" : "#ffe6e6", border: `1px solid ${isSafe ? "green" : "red"}`, borderRadius: "4px", fontWeight: "bold", color: isSafe ? "green" : "red" }}>
             {isSafe ? `✅ Safe - ${temperature}°C meets CCP > 75°C` : `❌ Warning - ${temperature}°C is below CCP target of 75°C`}
@@ -71,9 +75,7 @@ export default function HotFoodCheck() {
           </div>
         )}
 
-        <div style={{ backgroundColor: "white", padding: "25px", borderRadius: "4px" }}>
-          <div style={{ fontWeight: "bold", fontSize: "18px", marginBottom: "20px" }}>HOT FOOD CHECK</div>
-
+        <div style={{ backgroundColor: "white", padding: "25px", borderRadius: "8px" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <tbody>
               <tr style={{ borderBottom: "1px solid #eee" }}>
@@ -144,10 +146,11 @@ export default function HotFoodCheck() {
           {saved && (
             <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#e6ffe6", border: "1px solid green", borderRadius: "4px", color: "green", fontWeight: "bold" }}>
               ✅ Entry saved successfully!
+              {!isSafe && <span style={{ color: "red" }}> ⚠️ Alert notification sent!</span>}
             </div>
           )}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

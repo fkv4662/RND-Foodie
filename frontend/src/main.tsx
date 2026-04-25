@@ -13,6 +13,7 @@ import HotFoodCheck from './HotFoodCheck';
 import CCPLogs from './CCPLogs';
 import Admin from "./Admin";
 import Tasks from './Tasks';
+import Notifications from './Notifications';
 const App = () => (
   <BrowserRouter>
     <Routes>
@@ -27,6 +28,7 @@ const App = () => (
       <Route path="/admin" element={<Admin />} />
       <Route path="/tasks" element={<Tasks />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/notifications" element={<Notifications />} />
     </Routes>
   </BrowserRouter>
 );

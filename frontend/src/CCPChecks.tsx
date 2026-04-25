@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "./DashboardLayout";
 
 interface Task {
   id: number;
@@ -52,6 +53,33 @@ export default function CCPChecks() {
           });
         }
       }
+
+      // Auto create completion notification
+      const completedTasks = tasks.filter(t => t.status === "done");
+      const skippedTasks = tasks.filter(t => t.status === "skip");
+
+      if (completedTasks.length === tasks.length) {
+        await fetch("http://localhost:4000/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "✅ All CCP Checks Completed!",
+            message: `All ${tasks.length} CCP checks have been completed successfully at ${new Date().toLocaleTimeString()}.`,
+            type: "success"
+          })
+        });
+      } else if (skippedTasks.length > 0) {
+        await fetch("http://localhost:4000/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "⚠️ Some CCP Checks Skipped!",
+            message: `${skippedTasks.length} CCP check(s) were skipped: ${skippedTasks.map(t => t.name).join(", ")}. Please review immediately.`,
+            type: "warning"
+          })
+        });
+      }
+
       setSaved(true);
       setError("");
       setTimeout(() => setSaved(false), 3000);
@@ -61,20 +89,9 @@ export default function CCPChecks() {
   };
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", backgroundColor: "#f0f0f0", minHeight: "100vh" }}>
-      {/* Header */}
-      <div style={{ backgroundColor: "black", color: "white", padding: "20px 30px", fontSize: "32px", fontWeight: "bold" }}>
-        FOODIE CONTROL PLAN
-      </div>
+    <DashboardLayout title="Daily CCP Checks">
+      <div style={{ maxWidth: "1000px" }}>
 
-      {/* Back button */}
-      <div style={{ padding: "10px 20px" }}>
-        <button onClick={() => navigate('/tasks')} style={{ padding: "8px 15px", cursor: "pointer", backgroundColor: "black", color: "white", border: "none", borderRadius: "4px" }}>
-          ← Back to CCP
-        </button>
-      </div>
-
-      <div style={{ padding: "20px" }}>
         {error && (
           <div style={{ padding: "10px", marginBottom: "15px", backgroundColor: "#ffe6e6", border: "1px solid red", borderRadius: "4px", color: "red" }}>
             ⚠️ {error}
@@ -82,7 +99,7 @@ export default function CCPChecks() {
         )}
 
         {/* Dashboard Summary */}
-        <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "4px", marginBottom: "20px" }}>
+        <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px", marginBottom: "20px" }}>
           <div style={{ fontWeight: "bold", fontSize: "18px" }}>Chef Dashboard</div>
           <div style={{ fontWeight: "bold", fontSize: "16px", marginTop: "5px" }}>Daily Food Safety Input</div>
           <div style={{ color: "#555", marginTop: "5px" }}>Enter today's Food safety readings. Automatic timestamps are added.</div>
@@ -95,7 +112,7 @@ export default function CCPChecks() {
         </div>
 
         {/* Daily CCP Tasks Table */}
-        <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "4px" }}>
+        <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "8px" }}>
           <div style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "15px" }}>Daily CCP TASKS</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
@@ -141,20 +158,16 @@ export default function CCPChecks() {
           <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
             <button onClick={handleSaveAll} style={{ backgroundColor: "green", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px" }}>✅ Save ALL</button>
             <button onClick={() => setTasks(tasks.map(t => ({ ...t, temperature: "", notes: "", status: null })))} style={{ backgroundColor: "red", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px" }}>❌ Cancel</button>
-            <button 
-  onClick={() => navigate('/ccp-logs')}
-  style={{ backgroundColor: "black", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px", marginLeft: "auto" }}>
-  Submit Report
-</button>
+            <button onClick={() => navigate('/ccp-logs')} style={{ backgroundColor: "black", color: "white", padding: "10px 20px", border: "none", cursor: "pointer", borderRadius: "4px", marginLeft: "auto" }}>Submit Report</button>
           </div>
 
           {saved && (
             <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#e6ffe6", border: "1px solid green", borderRadius: "4px", color: "green", fontWeight: "bold" }}>
-              ✅ All CCP tasks saved successfully!
+              ✅ All CCP tasks saved successfully! Check notifications for alerts.
             </div>
           )}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

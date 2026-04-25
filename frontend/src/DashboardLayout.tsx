@@ -18,7 +18,13 @@ export default function DashboardLayout({
     navigate("/");
   };
 
-  const topButtons = ["SCHEDULE", "NOTIFICATIONS", "ACCOUNT", "SUPPORT"];
+  const topButtons = [
+    { label: "SCHEDULE", path: "/schedule" },
+    { label: "NOTIFICATIONS", path: "/notifications" },
+    { label: "ACCOUNT", path: "/account" },
+    { label: "SUPPORT", path: "/support" },
+  ];
+
   const sideButtons = [
     { icon: "🏠", label: "HOME", path: "/dashboard" },
     { icon: "🌡️", label: "CCP", path: "/ccp" },
@@ -159,9 +165,10 @@ export default function DashboardLayout({
           >
             {topButtons.map((item) => (
               <button
-                key={item}
+                key={item.label}
+                onClick={() => navigate(item.path)}
                 style={{
-                  background: "#000",
+                  background: location.pathname === item.path ? "#333" : "#000",
                   color: "#fff",
                   border: "none",
                   padding: "25px 30px",
@@ -175,10 +182,11 @@ export default function DashboardLayout({
                   e.currentTarget.style.background = "#333";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "#000";
+                  e.currentTarget.style.background =
+                    location.pathname === item.path ? "#333" : "#000";
                 }}
               >
-                {item}
+                {item.label}
               </button>
             ))}
           </div>
