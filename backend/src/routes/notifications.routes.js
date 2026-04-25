@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db');
+const { sendTemperatureAlert, sendTaskReminderEmail, sendCompletionEmail } = require('../emailService');
 
 // Get all notifications
 router.get('/', async (req, res) => {
@@ -14,14 +15,28 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Create a notification
+// Create a notification and send email
 router.post('/', async (req, res) => {
-  const { title, message, type } = req.body;
+  const { title, message, type, food_item, temperature, incomplete_tasks } = req.body;
   try {
     const result = await pool.query(
       'INSERT INTO notifications (title, message, type) VALUES ($1, $2, $3) RETURNING *',
       [title, message, type || 'info']
     );
+
+    // Send email based on notification type
+    try {
+      if (type === 'alert' && food_item && temperature) {
+        await sendTemperatureAlert(food_item, temperature);
+      } else if (type === 'warning' && incomplete_tasks) {
+        await sendTaskReminderEmail(incomplete_tasks);
+      } else if (type === 'success') {
+        await sendCompletionEmail();
+      }
+    } catch (emailErr) {
+      console.error('Email sending failed:', emailErr.message);
+    }
+
     res.json({ message: 'Notification created!', notification: result.rows[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });

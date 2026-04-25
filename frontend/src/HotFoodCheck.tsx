@@ -41,7 +41,9 @@ export default function HotFoodCheck() {
             body: JSON.stringify({
               title: "🚨 Temperature Alert!",
               message: `Hot food check for "${foodItem}" recorded ${temperature}°C which is below the safe limit of 75°C. Immediate action required!`,
-              type: "alert"
+              type: "alert",
+              food_item: foodItem,
+              temperature: temperature
             })
           });
         }
@@ -146,7 +148,7 @@ export default function HotFoodCheck() {
           {saved && (
             <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#e6ffe6", border: "1px solid green", borderRadius: "4px", color: "green", fontWeight: "bold" }}>
               ✅ Entry saved successfully!
-              {!isSafe && <span style={{ color: "red" }}> ⚠️ Alert notification sent!</span>}
+              {!isSafe && <span style={{ color: "red" }}> ⚠️ Alert notification and email sent to supervisor!</span>}
             </div>
           )}
         </div>
