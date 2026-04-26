@@ -13,36 +13,46 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname + '/public'));
 
-// Routers
+// ✅ Routers
 const ovenRouter = require('./routes/oven.routes');
 const authRouter = require('./routes/auth.routes');
 const testoRouter = require('./routes/testo.routes');
 const ccpRouter = require('./routes/ccp.routes');
-const notificationsRouter = require('./routes/notifications.routes');
 
+// ✅ NEW: Diary Router
+const diaryRouter = require('./routes/diary.routes');
+
+// ✅ API Routes
 app.use('/api/oven', ovenRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/testo', testoRouter);
 app.use('/api/ccp', ccpRouter);
-app.use('/api/notifications', notificationsRouter);
+app.use('/api/diary', diaryRouter); // ⭐ YOUR PART
 
-// Database test route
+// ✅ Database test route
 const { pool } = require('./db');
 app.get('/api/db-test', async (req, res) => {
   try {
     await pool.query('SELECT NOW()');
     res.json({ success: true, message: 'Database connection successful' });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Database connection failed', error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Database connection failed',
+      error: err.message
+    });
   }
 });
 
+// ✅ Root route
 app.get('/', (req, res) => {
   res.send('Foodie Control Backend Running');
 });
 
+// ✅ Port
 const PORT = process.env.PORT || 4000;
 
+// ✅ Scheduler
 function startTestoScheduler() {
   const FIVE_MINUTES = 5 * 60 * 1000;
 
@@ -56,9 +66,10 @@ function startTestoScheduler() {
   }, FIVE_MINUTES);
 }
 
+// ✅ Start server
 app.listen(PORT, async () => {
   await initTables();
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 
   try {
     await seedAdmin();

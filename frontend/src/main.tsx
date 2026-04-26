@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// Pages
 import Dashboard from './Dashboard';
 import Login from './Login';
 import CCP from './CCP';
@@ -13,7 +14,9 @@ import HotFoodCheck from './HotFoodCheck';
 import CCPLogs from './CCPLogs';
 import Admin from "./Admin";
 import Tasks from './Tasks';
-import Notifications from './Notifications';
+import Diary from './Diary'; // ✅ ADD THIS
+
+// App
 const App = () => (
   <BrowserRouter>
     <Routes>
@@ -27,12 +30,17 @@ const App = () => (
       <Route path="/ccp-logs" element={<CCPLogs />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/tasks" element={<Tasks />} />
+
+      {/* ✅ YOUR PAGE */}
+      <Route path="/diary" element={<Diary />} />
+
+      {/* fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
-      <Route path="/notifications" element={<Notifications />} />
     </Routes>
   </BrowserRouter>
 );
 
+// Render
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
