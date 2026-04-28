@@ -3,13 +3,14 @@ const { pool } = require('../db');
 // POST /api/fridge/log
 exports.logOvenTemperature = async (req, res) => {
   try {
-    const { device_name, food_item, temperature } = req.body;
-    if (!device_name || !food_item || typeof temperature !== 'number' || isNaN(temperature)) {
+    const { device_name, food_item, starting_temperature, finishing_temperature } = req.body;
+    if (!device_name || !food_item || typeof starting_temperature !== 'number' || typeof finishing_temperature !== 'number' || isNaN(starting_temperature) || isNaN(finishing_temperature)) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const status = temperature < 75 ? 'ALERT' : 'SAFE';
-    const query = `INSERT INTO oven_logs (device_name, food_item, temperature, status) VALUES ($1, $2, $3, $4) RETURNING *`;
-    const values = [device_name, food_item, temperature, status];
+    const status = finishing_temperature < 75 ? 'ALERT' : 'SAFE';
+    // Only use starting_temperature and finishing_temperature
+    const query = `INSERT INTO oven_logs (device_name, food_item, starting_temperature, finishing_temperature, status) VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+    const values = [device_name, food_item, starting_temperature, finishing_temperature, status];
     const result = await pool.query(query, values);
     // After insert, keep only 30 most recent SAFE logs, never delete ALERT logs
     await pool.query(`DELETE FROM oven_logs WHERE id IN (

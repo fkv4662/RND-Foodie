@@ -21,17 +21,36 @@ async function initTables() {
     await pool.query(`ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE`);
   }
 
-  // Existing oven logs table
+  // Existing oven logs table with starting and finishing temperature
   await pool.query(`
     CREATE TABLE IF NOT EXISTS oven_logs (
       id SERIAL PRIMARY KEY,
       device_name TEXT NOT NULL,
       food_item TEXT,
-      temperature NUMERIC NOT NULL,
+      starting_temperature NUMERIC,
+      finishing_temperature NUMERIC,
       status TEXT NOT NULL,
       recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Add starting_temperature if missing
+  const resultStartTemp = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'oven_logs' AND column_name = 'starting_temperature'
+  `);
+  if (resultStartTemp.rows.length === 0) {
+    await pool.query(`ALTER TABLE oven_logs ADD COLUMN starting_temperature NUMERIC`);
+  }
+
+  // Add finishing_temperature if missing
+  const resultFinishTemp = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'oven_logs' AND column_name = 'finishing_temperature'
+  `);
+  if (resultFinishTemp.rows.length === 0) {
+    await pool.query(`ALTER TABLE oven_logs ADD COLUMN finishing_temperature NUMERIC`);
+  }
 
   // New Testo fridge readings table
   await pool.query(`
