@@ -19,6 +19,8 @@ const authRouter = require('./routes/auth.routes');
 const testoRouter = require('./routes/testo.routes');
 const ccpRouter = require('./routes/ccp.routes');
 const rationalOvenRouter = require('./routes/rationalOven.routes');
+const notificationsRouter = require('./routes/notifications.routes');
+const businessDetailsRouter = require('./routes/businessDetails.routes');
 
 // ✅ NEW: Diary Router
 const diaryRouter = require('./routes/diary.routes');
@@ -29,6 +31,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/testo', testoRouter);
 app.use('/api/ccp', ccpRouter);
 app.use('/api/rational-oven', rationalOvenRouter);
+app.use('/api/notifications', notificationsRouter);
+app.use('/api/business-details', businessDetailsRouter);
 app.use('/api/diary', diaryRouter); // ⭐ YOUR PART
 
 // ✅ Database test route

@@ -118,6 +118,40 @@ async function initTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS business_details (
+      id INTEGER PRIMARY KEY,
+      form_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname = 'business_details_id_check'
+      ) THEN
+        ALTER TABLE business_details DROP CONSTRAINT business_details_id_check;
+      END IF;
+    END $$;
+  `);
+
+  await pool.query(`CREATE SEQUENCE IF NOT EXISTS business_details_id_seq`);
+  await pool.query(`
+    ALTER TABLE business_details
+    ALTER COLUMN id SET DEFAULT nextval('business_details_id_seq')
+  `);
+  await pool.query(`
+    SELECT setval(
+      'business_details_id_seq',
+      GREATEST(COALESCE((SELECT MAX(id) FROM business_details), 0), 1),
+      true
+    )
+  `);
 }
 
 module.exports = { initTables };
