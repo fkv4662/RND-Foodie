@@ -29,6 +29,15 @@ type FaqItem = {
   actionIsExternal?: boolean;
 };
 
+type ChatMessage = {
+  id: number;
+  sender: "assistant" | "user";
+  lines: string[];
+  actionLabel?: string;
+  actionHref?: string;
+  actionIsExternal?: boolean;
+};
+
 const mpiGuideUrl =
   "https://www.mpi.govt.nz/dmsdocument/16684-Simply-safe-and-suitable-food-control-plan-template-colour";
 
@@ -85,6 +94,13 @@ const faqItems: FaqItem[] = [
     actionHref: mpiGuideUrl,
     actionIsExternal: true,
   },
+];
+
+const chatQuickPrompts = [
+  "How do I record a temperature check?",
+  "How do I add a diary entry?",
+  "How do I open the business details form?",
+  "What should I do if the temperature is out of the range?",
 ];
 
 const guideItems: GuideItem[] = [
@@ -180,6 +196,103 @@ const pageAccentSoft = "#e9f6fd";
 const pageBorder = "#bfd6e2";
 const pageShadow = "0 18px 45px rgba(15, 60, 85, 0.12)";
 
+function createMessageId() {
+  return Date.now() + Math.floor(Math.random() * 1000);
+}
+
+function scoreMatch(query: string, target: string) {
+  const queryTokens = query
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length > 2);
+
+  const targetText = target.toLowerCase();
+
+  return queryTokens.reduce((score, token) => {
+    return score + (targetText.includes(token) ? 1 : 0);
+  }, 0);
+}
+
+function buildSupportReply(question: string) {
+  const normalizedQuestion = question.trim().toLowerCase();
+
+  const faqMatch = faqItems
+    .map((item) => ({
+      item,
+      score: scoreMatch(normalizedQuestion, `${item.question} ${item.answer.join(" ")}`),
+    }))
+    .sort((left, right) => right.score - left.score)[0];
+
+  if (faqMatch && faqMatch.score >= 2) {
+    return {
+      lines: faqMatch.item.answer,
+      actionLabel: faqMatch.item.actionLabel,
+      actionHref: faqMatch.item.actionHref,
+      actionIsExternal: faqMatch.item.actionIsExternal,
+    };
+  }
+
+  const guideMatch = guideItems
+    .map((item) => ({
+      item,
+      score: scoreMatch(
+        normalizedQuestion,
+        `${item.title} ${item.section} ${item.summary} ${item.bulletPoints.join(" ")}`
+      ),
+    }))
+    .sort((left, right) => right.score - left.score)[0];
+
+  if (guideMatch && guideMatch.score >= 2) {
+    return {
+      lines: [guideMatch.item.summary, ...guideMatch.item.bulletPoints.slice(0, 2)],
+      actionLabel: "Open matching guide",
+      actionHref: guideMatch.item.href,
+      actionIsExternal: true,
+    };
+  }
+
+  if (normalizedQuestion.includes("business") || normalizedQuestion.includes("operator") || normalizedQuestion.includes("registration")) {
+    return {
+      lines: [
+        "Use the Business Details form to complete the MPI business-details pages digitally for each separate business.",
+        "You can create a new business form, save it to the database, reopen it later, and delete it if it is no longer needed.",
+      ],
+      actionLabel: "Open business details form",
+      actionHref: "/business-details",
+    };
+  }
+
+  if (normalizedQuestion.includes("diary") || normalizedQuestion.includes("incident")) {
+    return {
+      lines: [
+        "Open the Diary page from the left navigation and record the issue with the date, time, reporter, description, and action taken.",
+        "Saving the entry keeps a usable incident history for review later.",
+      ],
+      actionLabel: "Open diary",
+      actionHref: "/diary",
+    };
+  }
+
+  if (normalizedQuestion.includes("pdf") || normalizedQuestion.includes("food control plan") || normalizedQuestion.includes("template")) {
+    return {
+      lines: [
+        "The official MPI template is linked from the support page and from each guide card.",
+        "The guide buttons already target the relevant section pages where possible.",
+      ],
+      actionLabel: "Open official PDF",
+      actionHref: mpiGuideUrl,
+      actionIsExternal: true,
+    };
+  }
+
+  return {
+    lines: [
+      "I can help with CCP checks, diary entries, business details, temperature issues, and the MPI food control plan guidance.",
+      "Try asking about temperature checks, diary entries, business details, or how to open the food control plan PDF.",
+    ],
+  };
+}
+
 function cardStyle() {
   return {
     background: "#fff",
@@ -191,10 +304,20 @@ function cardStyle() {
 
 export default function Support() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: createMessageId(),
+      sender: "assistant",
+      lines: [
+        "Hi, I’m your support assistant for Foodie Control Plan.",
+        "Ask about CCP checks, diary entries, business details, temperature issues, or the MPI food control plan.",
+      ],
+    },
+  ]);
 
   useEffect(() => {
     let ignore = false;
@@ -221,30 +344,6 @@ export default function Support() {
     };
   }, []);
 
-  const normalizedQuery = query.trim().toLowerCase();
-
-  const filteredFaqs = useMemo(() => {
-    if (!normalizedQuery) {
-      return faqItems;
-    }
-
-    return faqItems.filter((item) => {
-      return `${item.question} ${item.answer.join(" ")}`.toLowerCase().includes(normalizedQuery);
-    });
-  }, [normalizedQuery]);
-
-  const filteredGuides = useMemo(() => {
-    if (!normalizedQuery) {
-      return guideItems;
-    }
-
-    return guideItems.filter((item) => {
-      return `${item.title} ${item.description} ${item.summary} ${item.section} ${item.bulletPoints.join(" ")}`
-        .toLowerCase()
-        .includes(normalizedQuery);
-    });
-  }, [normalizedQuery]);
-
   const recentActivity = useMemo(() => {
     if (notifications.length === 0) {
       return ["No recent activity shown"];
@@ -252,6 +351,31 @@ export default function Support() {
 
     return notifications.map((item) => item.title);
   }, [notifications]);
+
+  const submitChatQuestion = (question: string) => {
+    const trimmedQuestion = question.trim();
+
+    if (!trimmedQuestion) {
+      return;
+    }
+
+    const reply = buildSupportReply(trimmedQuestion);
+
+    setChatMessages((previous) => [
+      ...previous,
+      { id: createMessageId(), sender: "user", lines: [trimmedQuestion] },
+      {
+        id: createMessageId(),
+        sender: "assistant",
+        lines: reply.lines,
+        actionLabel: reply.actionLabel,
+        actionHref: reply.actionHref,
+        actionIsExternal: reply.actionIsExternal,
+      },
+    ]);
+
+    setChatInput("");
+  };
 
   return (
     <DashboardLayout title="Support">
@@ -310,34 +434,198 @@ export default function Support() {
 
           <div
             style={{
-              maxWidth: "520px",
-              border: `2px solid ${pageAccent}`,
-              borderRadius: "22px",
-              display: "flex",
-              alignItems: "center",
-              padding: "14px 18px",
-              gap: "12px",
-              background: "#fff",
               marginTop: "24px",
-              boxShadow: "0 10px 26px rgba(15, 107, 149, 0.12)",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1.5fr) minmax(260px, 0.9fr)",
+              gap: "18px",
+              alignItems: "start",
             }}
           >
-            <span style={{ fontSize: "24px", lineHeight: 1, color: pageAccent }}>⌕</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search"
+            <div
               style={{
-                flex: 1,
-                border: "none",
-                outline: "none",
-                fontSize: "20px",
-                fontWeight: 700,
-                background: "transparent",
-                color: "#17313d",
+                border: `2px solid ${pageAccent}`,
+                borderRadius: "26px",
+                background: "linear-gradient(180deg, #ffffff 0%, #f7fcff 100%)",
+                boxShadow: "0 14px 30px rgba(15, 107, 149, 0.12)",
+                overflow: "hidden",
               }}
-            />
-            <span style={{ fontSize: "24px", lineHeight: 1, color: pageAccent }}>◉</span>
+            >
+              <div
+                style={{
+                  padding: "16px 18px",
+                  borderBottom: `1px solid ${pageBorder}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "12px", fontWeight: 800, letterSpacing: "0.1em", color: pageAccent, marginBottom: "6px" }}>
+                    SUPPORT CHAT
+                  </div>
+                  <div style={{ fontSize: "20px", fontWeight: 800, color: "#17313d" }}>
+                    Ask a support question
+                  </div>
+                </div>
+                <div style={{ color: "#607480", fontSize: "13px" }}>
+                  FAQ-powered assistant
+                </div>
+              </div>
+
+              <div style={{ padding: "18px", display: "grid", gap: "12px", maxHeight: "360px", overflowY: "auto" }}>
+                {chatMessages.map((message) => {
+                  const isAssistant = message.sender === "assistant";
+                  const actionHref = message.actionHref;
+
+                  return (
+                    <div
+                      key={message.id}
+                      style={{
+                        justifySelf: isAssistant ? "stretch" : "end",
+                        maxWidth: isAssistant ? "100%" : "80%",
+                        background: isAssistant ? "#ffffff" : `linear-gradient(135deg, ${pageAccent} 0%, ${pageAccentDark} 100%)`,
+                        color: isAssistant ? "#243842" : "#ffffff",
+                        border: isAssistant ? `1px solid ${pageBorder}` : "none",
+                        borderRadius: isAssistant ? "18px 18px 18px 6px" : "18px 18px 6px 18px",
+                        padding: "14px 16px",
+                        boxShadow: isAssistant ? "0 8px 18px rgba(15, 60, 85, 0.08)" : "0 10px 20px rgba(10, 79, 110, 0.24)",
+                      }}
+                    >
+                      <div style={{ display: "grid", gap: "8px", lineHeight: 1.6, fontSize: "14px" }}>
+                        {message.lines.map((line) => (
+                          <div key={line}>{line}</div>
+                        ))}
+                      </div>
+
+                      {isAssistant && message.actionLabel && actionHref ? (
+                        message.actionIsExternal ? (
+                          <a
+                            href={actionHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: "inline-block",
+                              marginTop: "12px",
+                              textDecoration: "none",
+                              background: `linear-gradient(135deg, ${pageAccent} 0%, ${pageAccentDark} 100%)`,
+                              color: "#fff",
+                              borderRadius: "10px",
+                              padding: "9px 12px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {message.actionLabel}
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => navigate(actionHref)}
+                            style={{
+                              marginTop: "12px",
+                              border: "none",
+                              background: `linear-gradient(135deg, ${pageAccent} 0%, ${pageAccentDark} 100%)`,
+                              color: "#fff",
+                              borderRadius: "10px",
+                              padding: "9px 12px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {message.actionLabel}
+                          </button>
+                        )
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  submitChatQuestion(chatInput);
+                }}
+                style={{
+                  borderTop: `1px solid ${pageBorder}`,
+                  padding: "16px 18px 18px",
+                  display: "flex",
+                  gap: "12px",
+                  alignItems: "center",
+                }}
+              >
+                <input
+                  value={chatInput}
+                  onChange={(event) => setChatInput(event.target.value)}
+                  placeholder="Ask about diary, CCP, business details, or the MPI guide"
+                  style={{
+                    flex: 1,
+                    border: `1px solid ${pageBorder}`,
+                    borderRadius: "14px",
+                    padding: "13px 14px",
+                    fontSize: "15px",
+                    outline: "none",
+                    color: "#17313d",
+                    background: "#ffffff",
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    border: "none",
+                    background: `linear-gradient(135deg, ${pageAccent} 0%, ${pageAccentDark} 100%)`,
+                    color: "#fff",
+                    borderRadius: "14px",
+                    padding: "13px 18px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+
+            <div
+              style={{
+                ...cardStyle(),
+                padding: "18px",
+                background: "linear-gradient(180deg, #ffffff 0%, #f9fcfe 100%)",
+              }}
+            >
+              <div style={{ fontSize: "12px", fontWeight: 800, letterSpacing: "0.1em", color: pageAccent, marginBottom: "8px" }}>
+                QUICK PROMPTS
+              </div>
+              <div style={{ fontSize: "18px", fontWeight: 800, color: "#17313d", marginBottom: "8px" }}>
+                Try one of these questions
+              </div>
+              <div style={{ color: "#607480", fontSize: "14px", lineHeight: 1.6, marginBottom: "14px" }}>
+                Use the chat for common support tasks or jump straight into one of the usual staff questions.
+              </div>
+
+              <div style={{ display: "grid", gap: "10px" }}>
+                {chatQuickPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => submitChatQuestion(prompt)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      border: `1px solid ${pageBorder}`,
+                      background: "#ffffff",
+                      color: "#1f3440",
+                      borderRadius: "14px",
+                      padding: "12px 14px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div
@@ -416,8 +704,8 @@ export default function Support() {
           </div>
 
           <div style={{ display: "grid", gap: "6px" }}>
-            {filteredFaqs.length > 0 ? (
-              filteredFaqs.map((item) => {
+            {faqItems.length > 0 ? (
+              faqItems.map((item) => {
                 const isOpen = activeFaq === item.question;
                 const actionHref = item.actionHref;
 
@@ -612,7 +900,7 @@ export default function Support() {
             </div>
           </a>
 
-          {filteredGuides.map((item) => {
+          {guideItems.map((item) => {
             const isOpen = activeGuide === item.title;
 
             return (
