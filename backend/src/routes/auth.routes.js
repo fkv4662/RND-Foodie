@@ -6,9 +6,9 @@ const { pool } = require("../db");
 
 const SECRET = process.env.JWT_SECRET || "super_secret_key";
 
-// Register route
+// ================= REGISTER =================
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({
@@ -33,8 +33,11 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await pool.query(
-      `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
-      [username, email, hashedPassword]
+      `
+      INSERT INTO users (username, email, password_hash, role)
+      VALUES ($1, $2, $3, $4)
+      `,
+      [username, email, hashedPassword, role || "MANAGER"]
     );
 
     return res.json({
@@ -50,44 +53,56 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login route
+// ================= LOGIN =================
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Email and password required",
-    });
-  }
-
   try {
-    const userRes = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const { email, password } = req.body;
 
-    if (userRes.rows.length === 0) {
-      return res.status(401).json({
+    if (!email || !password) {
+      return res.status(400).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Email and password required",
       });
     }
 
-    const user = userRes.rows[0];
+    const result = await pool.query(
+      `
+      SELECT id, username, email, role, password_hash
+      FROM users
+      WHERE email = $1
+      `,
+      [email]
+    );
 
-    const valid = await bcrypt.compare(password, user.password);
-
-    if (!valid) {
+    if (result.rows.length === 0) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid email or password",
+      });
+    }
+
+    const user = result.rows[0];
+
+    if (!user.password_hash) {
+      return res.status(401).json({
+        success: false,
+        message: "This user has no password set",
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
       });
     }
 
     const token = jwt.sign(
       {
         id: user.id,
+        username: user.username,
         email: user.email,
         role: user.role,
       },
@@ -95,20 +110,20 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    return res.json({
+    res.json({
       success: true,
-      token,
       message: "Login successful",
+      token,
       user: {
         id: user.id,
-        name: user.name,
+        username: user.username,
         email: user.email,
         role: user.role,
       },
     });
   } catch (err) {
     console.error("Login error:", err);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Server error",
     });
