@@ -2,24 +2,41 @@ const { pool } = require('./db');
 
 async function initTables() {
   // Create users table if it doesn't exist
+    // Create users table if it doesn't exist
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username VARCHAR(255) NOT NULL,
-      password VARCHAR(255) NOT NULL,
+      email VARCHAR(255) UNIQUE,
+      password_hash TEXT,
+      role VARCHAR(50) DEFAULT 'CHEF',
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);
 
   // Add email column if missing
-  const result = await pool.query(`
-    SELECT column_name FROM information_schema.columns
-    WHERE table_name = 'users' AND column_name = 'email'
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS email VARCHAR(255) UNIQUE
   `);
 
-  if (result.rows.length === 0) {
-    await pool.query(`ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE`);
-  }
+  // Add password_hash column if missing
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS password_hash TEXT
+  `);
+
+  // Add role column if missing
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'CHEF'
+  `);
+
+  // Remove old password column if it exists
+  await pool.query(`
+    ALTER TABLE users
+    DROP COLUMN IF EXISTS password
+  `);
 
   // Existing oven logs table with starting and finishing temperature
   await pool.query(`
