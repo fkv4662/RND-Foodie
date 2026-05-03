@@ -199,3 +199,65 @@ textarea:focus {
   max-width: 200px;
   word-break: break-word;
 }
+
+.section {
+  margin-top: 20px;
+}
+
+.temp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+}
+
+.target {
+  font-size: 12px;
+  color: gray;
+}
+
+.temp-value {
+  color: green;
+  font-weight: bold;
+}
+
+.time {
+  color: #555;
+}
+
+.status {
+  font-size: 18px;
+}
+
+.record-btn {
+  margin-top: 10px;
+  background: blue;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+}
+
+.schedule-row {
+  display: flex;
+  justify-content: space-between;
+  background: #eee;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 5px;
+}
+
+.link {
+  color: blue;
+  cursor: pointer;
+}
+
+.warning {
+  margin-top: 20px;
+  background: #ffe5e5;
+  padding: 10px;
+  border-left: 5px solid red;
+}

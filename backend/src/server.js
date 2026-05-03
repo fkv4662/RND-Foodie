@@ -21,9 +21,9 @@ const ccpRouter = require('./routes/ccp.routes');
 const rationalOvenRouter = require('./routes/rationalOven.routes');
 const notificationsRouter = require('./routes/notifications.routes');
 const businessDetailsRouter = require('./routes/businessDetails.routes');
-const usersRouter = require('./routes/users.routes'); //ADMIN PAGE
-// ✅ NEW: Diary Router
+const usersRouter = require('./routes/users.routes'); // ADMIN PAGE
 const diaryRouter = require('./routes/diary.routes');
+const deliveryRouter = require('./routes/delivery.routes');
 
 // ✅ API Routes
 app.use('/api/oven', ovenRouter);
@@ -33,8 +33,9 @@ app.use('/api/ccp', ccpRouter);
 app.use('/api/rational-oven', rationalOvenRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/business-details', businessDetailsRouter);
-app.use('/api/diary', diaryRouter); // ⭐ YOUR PART
-app.use('/api/users', usersRouter); //ADMIN PAGE
+app.use('/api/diary', diaryRouter); // YOUR PART
+app.use('/api/delivery', deliveryRouter); // YOUR DELIVERY
+app.use('/api/users', usersRouter); // ADMIN PAGE
 
 // ✅ Database test route
 const { pool } = require('./db');

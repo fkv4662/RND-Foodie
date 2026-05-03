@@ -14,10 +14,8 @@ import HotFoodCheck from './HotFoodCheck';
 import CCPLogs from './CCPLogs';
 import Admin from "./Admin";
 import Tasks from './Tasks';
-import Diary from './Diary'; // ✅ ADD THIS
-import Notifications from './Notifications';
-import Support from './Support';
-import BusinessDetails from './BusinessDetails';
+import Diary from './Diary'; 
+import Delivery from './Delivery';
 
 // App
 const App = () => (
@@ -33,11 +31,7 @@ const App = () => (
       <Route path="/ccp-logs" element={<CCPLogs />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/tasks" element={<Tasks />} />
-      <Route path="/notifications" element={<Notifications />} />
-      <Route path="/support" element={<Support />} />
-      <Route path="/business-details" element={<BusinessDetails />} />
-
-      {/* ✅ YOUR PAGE */}
+      <Route path="/delivery" element={<Delivery />} />
       <Route path="/diary" element={<Diary />} />
 
       {/* fallback */}
