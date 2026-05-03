@@ -16,6 +16,7 @@ import Admin from "./Admin";
 import Tasks from './Tasks';
 import Diary from './Diary'; 
 import Delivery from './Delivery';
+import Notifications from './Notifications';
 
 // App
 const App = () => (
@@ -33,7 +34,7 @@ const App = () => (
       <Route path="/tasks" element={<Tasks />} />
       <Route path="/delivery" element={<Delivery />} />
       <Route path="/diary" element={<Diary />} />
-
+      <Route path="/notifications" element={<Notifications />} />
       {/* fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

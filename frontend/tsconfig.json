@@ -17,6 +17,6 @@
     "jsx": "react-jsx",
     "ignoreDeprecations": "6.0"
   },
-  "include": ["src", "../src/CCP.tsx", "../src/api.ts", "../src/CCPChecks.tsx", "../src/CCPLogs.tsx", "../src/Dashboard.tsx"],
+  "include": ["src", "../src/CCP.tsx", "../src/api.ts", "../src/CCPChecks.tsx", "../src/CCPLogs.tsx", "../src/Dashboard.tsx", "../src/global.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
