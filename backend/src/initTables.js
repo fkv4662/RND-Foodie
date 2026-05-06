@@ -136,6 +136,21 @@ async function initTables() {
     )
   `);
 
+// Diary incidents table - edited tommy
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS incidents (
+      id SERIAL PRIMARY KEY,
+      date DATE,
+      time TIME,
+      reported_by VARCHAR(255),
+      description TEXT,
+      action_taken TEXT,
+      status VARCHAR(50) DEFAULT 'Open',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS business_details (
       id INTEGER PRIMARY KEY,
