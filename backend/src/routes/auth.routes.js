@@ -33,7 +33,8 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await pool.query(
-      `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
+      `INSERT INTO users (name, email, password_hash, role, is_active)
+       VALUES ($1, $2, $3, 'USER', true)`,
       [username, email, hashedPassword]
     );
 
@@ -76,7 +77,7 @@ router.post("/login", async (req, res) => {
 
     const user = userRes.rows[0];
 
-    const valid = await bcrypt.compare(password, user.password);
+  const valid = await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {
       return res.status(401).json({
@@ -101,7 +102,7 @@ router.post("/login", async (req, res) => {
       message: "Login successful",
       user: {
         id: user.id,
-        name: user.name,
+        name: user.name || user.username,
         email: user.email,
         role: user.role,
       },
