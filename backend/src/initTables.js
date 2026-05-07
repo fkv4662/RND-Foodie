@@ -14,6 +14,63 @@ async function initTables() {
     )
   `);
 
+  const userColumns = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'users'
+  `);
+  const userColumnNames = new Set(userColumns.rows.map((row) => row.column_name));
+
+  if (!userColumnNames.has('name')) {
+    await pool.query(`ALTER TABLE users ADD COLUMN name VARCHAR(255)`);
+  }
+
+  if (!userColumnNames.has('email')) {
+    await pool.query(`ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE`);
+  }
+
+  if (!userColumnNames.has('password_hash')) {
+    await pool.query(`ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)`);
+  }
+
+  if (!userColumnNames.has('role')) {
+    await pool.query(`ALTER TABLE users ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'USER'`);
+  }
+
+  if (!userColumnNames.has('is_active')) {
+    await pool.query(`ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE`);
+  }
+
+  if (userColumnNames.has('username')) {
+    await pool.query(`
+      UPDATE users
+      SET name = COALESCE(NULLIF(name, ''), username),
+          username = COALESCE(NULLIF(username, ''), name, email, 'user')
+      WHERE username IS NOT NULL OR username IS NULL
+    `);
+
+    await pool.query(`ALTER TABLE users ALTER COLUMN username DROP NOT NULL`);
+  }
+
+  if (userColumnNames.has('password')) {
+    await pool.query(`
+      UPDATE users
+      SET password_hash = COALESCE(NULLIF(password_hash, ''), password)
+      WHERE password IS NOT NULL
+    `);
+  }
+
+  await pool.query(`
+    UPDATE users
+    SET name = COALESCE(NULLIF(name, ''), email, 'User')
+    WHERE name IS NULL OR name = ''
+  `);
+
+  await pool.query(`
+    ALTER TABLE users
+    ALTER COLUMN name SET NOT NULL,
+    ALTER COLUMN password_hash SET NOT NULL
+  `);
+
   // Add email column if missing
   await pool.query(`
     ALTER TABLE users
@@ -120,6 +177,19 @@ async function initTables() {
       temperature DECIMAL(5,2),
       action_taken TEXT,
       notes TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS incidents (
+      id SERIAL PRIMARY KEY,
+      date DATE,
+      time VARCHAR(20),
+      reported_by VARCHAR(255),
+      description TEXT,
+      action_taken TEXT,
+      status VARCHAR(50),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
