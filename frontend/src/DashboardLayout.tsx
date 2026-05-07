@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 type DashboardLayoutProps = {
   title: string;
   children: React.ReactNode;
+};
+
+type LoggedInUser = {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
 };
 
 export default function DashboardLayout({
@@ -12,9 +19,15 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const user: LoggedInUser | null = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
@@ -31,7 +44,9 @@ export default function DashboardLayout({
     { icon: "📋", label: "DIARY", path: "/diary" },
     { icon: "📝", label: "Tasks", path: "/tasks" },
     { icon: "🚚", label: "Delivery", path: "/delivery" },
-    { icon: "⚙️", label: "ADMIN", path: "/admin" },
+    ...(user?.role === "MANAGER"
+      ? [{ icon: "⚙️", label: "ADMIN", path: "/admin" }]
+      : []),
   ];
 
   return (
@@ -42,6 +57,7 @@ export default function DashboardLayout({
         fontFamily: "Arial, sans-serif",
       }}
     >
+      {/* TOP HEADER */}
       <div
         style={{
           height: "100px",
@@ -65,32 +81,85 @@ export default function DashboardLayout({
           FOODIE CONTROL PLAN
         </h1>
 
-        <button
-          onClick={logout}
-          title="Logout"
-          style={{
-            width: "56px",
-            height: "56px",
-            borderRadius: "50%",
-            border: "1px solid #333",
-            background: "#000",
-            color: "#fff",
-            fontSize: "24px",
-            cursor: "pointer",
-            flexShrink: 0,
-          }}
-        >
-          ⎋
-        </button>
+        {/* USER ICON */}
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            title="User menu"
+            style={{
+              width: "60px",
+              height: "60px",
+              borderRadius: "50%",
+              border: "1px solid #333",
+              background: "#fff",
+              color: "#000",
+              fontSize: "18px",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {user?.username?.slice(0, 2).toUpperCase() || "👤"}
+          </button>
+
+          {userMenuOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "72px",
+                right: 0,
+                width: "210px",
+                background: "#fff",
+                color: "#000",
+                borderRadius: "8px",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                overflow: "hidden",
+                zIndex: 999,
+              }}
+            >
+              <div
+                style={{
+                  padding: "14px",
+                  borderBottom: "1px solid #ddd",
+                }}
+              >
+                <div style={{ fontWeight: 700, fontSize: "15px" }}>
+                  {user?.username || "User"}
+                </div>
+                <div style={{ fontSize: "12px", color: "#666", marginTop: "3px" }}>
+                  {user?.role || "No role"}
+                </div>
+              </div>
+
+              <button
+                onClick={logout}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  border: "none",
+                  background: "#fff",
+                  color: "#e74c3c",
+                  textAlign: "left",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* PAGE LAYOUT */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "110px 1fr",
-          minHeight: "calc(100vh - 88px)",
+          gridTemplateColumns: "135px 1fr",
+          minHeight: "calc(100vh - 100px)",
         }}
       >
+        {/* LEFT SIDEBAR */}
         <aside
           style={{
             background: "#000",
@@ -98,8 +167,8 @@ export default function DashboardLayout({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "22px",
-            padding: "24px 8px",
+            gap: "26px",
+            padding: "28px 10px",
             boxSizing: "border-box",
           }}
         >
@@ -114,28 +183,24 @@ export default function DashboardLayout({
                   textAlign: "center",
                   width: "100%",
                   cursor: "pointer",
-                  padding: "12px 6px",
-                  borderRadius: "10px",
+                  padding: "14px 8px",
+                  borderRadius: "12px",
                   transition: "0.2s",
                   background: isActive ? "#444" : "transparent",
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "#333";
-                  }
+                  if (!isActive) e.currentTarget.style.background = "#333";
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "transparent";
-                  }
+                  if (!isActive) e.currentTarget.style.background = "transparent";
                 }}
               >
-                <div style={{ fontSize: "38px", marginBottom: "8px" }}>
+                <div style={{ fontSize: "46px", marginBottom: "10px" }}>
                   {item.icon}
                 </div>
                 <div
                   style={{
-                    fontSize: "14px",
+                    fontSize: "16px",
                     lineHeight: 1.2,
                     fontWeight: isActive ? 700 : 500,
                   }}
@@ -147,57 +212,49 @@ export default function DashboardLayout({
           })}
         </aside>
 
-        <main
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "12px",
-              padding: "12px 14px",
-              boxSizing: "border-box",
-            }}
-          >
-            {topButtons.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                style={{
-                  background: location.pathname === item.path ? "#333" : "#000",
-                  color: "#fff",
-                  border: "none",
-                  padding: "25px 30px",
-                  minWidth: "190px",
-                  fontSize: "29px",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  transition: "0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#333";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    location.pathname === item.path ? "#333" : "#000";
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+        {/* MAIN */}
+        <main style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+          {/* TOP BUTTONS ONLY ON HOME PAGE */}
+          {location.pathname === "/dashboard" && (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "12px",
+                padding: "12px 14px",
+                boxSizing: "border-box",
+              }}
+            >
+              {topButtons.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => navigate(item.path)}
+                  style={{
+                    background: "#000",
+                    color: "#fff",
+                    border: "none",
+                    padding: "25px 30px",
+                    minWidth: "190px",
+                    fontSize: "29px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#333";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#000";
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
 
-          <div
-            style={{
-              flex: 1,
-              padding: "20px",
-              boxSizing: "border-box",
-            }}
-          >
+          {/* PAGE CONTENT */}
+          <div style={{ flex: 1, padding: "20px", boxSizing: "border-box" }}>
             <h2
               style={{
                 margin: "0 0 20px 0",

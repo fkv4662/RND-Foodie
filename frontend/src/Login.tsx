@@ -8,8 +8,10 @@ const Login: React.FC = () => {
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
+
   const navigate = useNavigate();
 
+  // ================= LOGIN =================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -23,7 +25,10 @@ const Login: React.FC = () => {
       const data = await res.json();
 
       if (data.success && data.token) {
+        // ✅ SAVE TOKEN + USER
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
         navigate('/dashboard');
       } else {
         alert(data.message || 'Invalid credentials');
@@ -33,6 +38,7 @@ const Login: React.FC = () => {
     }
   };
 
+  // ================= REGISTER =================
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
