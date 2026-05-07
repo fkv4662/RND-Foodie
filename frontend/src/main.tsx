@@ -18,6 +18,7 @@ import Diary from './Diary';
 import Delivery from './Delivery';
 import Support from './Support';
 import Notifications from './Notifications';
+import BusinessDetails from './BusinessDetails';
 
 // App
 const App = () => (
@@ -35,6 +36,7 @@ const App = () => (
       <Route path="/tasks" element={<Tasks />} />
       <Route path="/delivery" element={<Delivery />} />
       <Route path="/diary" element={<Diary />} />
+      <Route path="/business-details" element={<BusinessDetails />} />
       <Route path="/support" element={<Support />} />
       <Route path="/notifications" element={<Notifications />} />
       {/* fallback */}
