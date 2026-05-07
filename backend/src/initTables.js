@@ -21,7 +21,7 @@ async function initTables() {
 
   await pool.query(`
     UPDATE users
-    SET username = COALESCE(NULLIF(username, ''), name, split_part(email, '@', 1), 'user-' || id)
+    SET username = COALESCE(NULLIF(username, ''), username, split_part(email, '@', 1), 'user-' || id)
     WHERE username IS NULL OR username = ''
   `);
 
