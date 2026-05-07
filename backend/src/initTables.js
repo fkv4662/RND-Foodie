@@ -14,6 +14,22 @@ async function initTables() {
     )
   `);
 
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS username VARCHAR(255)
+  `);
+
+  await pool.query(`
+    UPDATE users
+    SET username = COALESCE(NULLIF(username, ''), name, split_part(email, '@', 1), 'user-' || id)
+    WHERE username IS NULL OR username = ''
+  `);
+
+  await pool.query(`
+    ALTER TABLE users
+    ALTER COLUMN username SET NOT NULL
+  `);
+
   // Add email column if missing
   await pool.query(`
     ALTER TABLE users
@@ -30,6 +46,24 @@ async function initTables() {
   await pool.query(`
     ALTER TABLE users
     ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'CHEF'
+  `);
+
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE
+  `);
+
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'name'
+      ) THEN
+        ALTER TABLE users ALTER COLUMN name DROP NOT NULL;
+      END IF;
+    END $$;
   `);
 
   // Remove old password column if it exists
