@@ -160,4 +160,36 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.put("/:id/password", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password is required",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      "UPDATE users SET password_hash = $1 WHERE id = $2",
+      [hashedPassword, id]
+    );
+
+    res.json({
+      success: true,
+      message: "Password updated",
+    });
+  } catch (error) {
+    console.error("Password update error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Could not update password",
+    });
+  }
+});
+
 module.exports = router;

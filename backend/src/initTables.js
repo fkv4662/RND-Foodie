@@ -184,6 +184,17 @@ async function initTables() {
   )
 `);
 
+// Delivery logs table - tommy
+  await pool.query(`
+  CREATE TABLE IF NOT EXISTS delivery_logs (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    temperature NUMERIC,
+    time VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS business_details (
