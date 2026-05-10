@@ -89,6 +89,24 @@ async function initTables() {
     ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'CHEF'
   `);
 
+  await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE
+  `);
+
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'name'
+      ) THEN
+        ALTER TABLE users ALTER COLUMN name DROP NOT NULL;
+      END IF;
+    END $$;
+  `);
+
   // Remove old password column if it exists
   await pool.query(`
     ALTER TABLE users
@@ -205,6 +223,32 @@ async function initTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+// Diary incidents table - edited tommy
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS incidents (
+      id SERIAL PRIMARY KEY,
+      date DATE,
+      time TIME,
+      reported_by VARCHAR(255),
+      description TEXT,
+      action_taken TEXT,
+      status VARCHAR(50) DEFAULT 'Open',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+// Delivery logs table - tommy
+  await pool.query(`
+  CREATE TABLE IF NOT EXISTS delivery_logs (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    temperature NUMERIC,
+    time VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS business_details (

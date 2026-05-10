@@ -39,6 +39,8 @@ const App = () => (
       <Route path="/business-details" element={<BusinessDetails />} />
       <Route path="/support" element={<Support />} />
       <Route path="/notifications" element={<Notifications />} />
+      <Route path="/support" element={<Support />} />
+      <Route path="/account" element={<Account />} />
       {/* fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

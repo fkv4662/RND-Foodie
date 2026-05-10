@@ -5,7 +5,7 @@ async function seedAdmin() {
   try {
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
-    const name = process.env.ADMIN_NAME || "Admin";
+    const username = process.env.ADMIN_NAME || "Admin";
     const role = process.env.ADMIN_ROLE || "ADMIN";
 
     if (!email || !password) {
@@ -26,9 +26,9 @@ async function seedAdmin() {
     const passwordHash = await bcrypt.hash(password, 10);
 
     await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, is_active)
-       VALUES ($1, $2, $3, $4, true)`,
-      [name, email, passwordHash, role]
+      `INSERT INTO users (username, email, password_hash, role)
+       VALUES ($1, $2, $3, $4)`,
+      [username, email, passwordHash, role]
     );
 
     console.log("Admin user created");
