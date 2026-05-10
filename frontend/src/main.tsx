@@ -19,6 +19,7 @@ import Delivery from './Delivery';
 import Support from './Support';
 import Notifications from './Notifications';
 import BusinessDetails from './BusinessDetails';
+import Account from './Account';
 
 // App
 const App = () => (
