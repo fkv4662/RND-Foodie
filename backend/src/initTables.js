@@ -283,6 +283,38 @@ async function initTables() {
       true
     )
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS schedule_tasks (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      scheduled_time VARCHAR(20) NOT NULL,
+      day_of_week INTEGER,
+      recurrence_type VARCHAR(20) NOT NULL DEFAULT 'WEEKLY',
+      assigned_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      assign_to_everyone BOOLEAN NOT NULL DEFAULT FALSE,
+      created_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT schedule_tasks_recurrence_check CHECK (recurrence_type IN ('WEEKLY', 'DAILY')),
+      CONSTRAINT schedule_tasks_day_check CHECK (
+        (recurrence_type = 'DAILY' AND day_of_week IS NULL)
+        OR (recurrence_type = 'WEEKLY' AND day_of_week BETWEEN 0 AND 6)
+      )
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS schedule_task_completions (
+      id SERIAL PRIMARY KEY,
+      task_id INTEGER NOT NULL REFERENCES schedule_tasks(id) ON DELETE CASCADE,
+      occurrence_date DATE NOT NULL,
+      completed_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(task_id, occurrence_date)
+    )
+  `);
 }
 
 module.exports = { initTables };

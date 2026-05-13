@@ -38,8 +38,10 @@ export default function DashboardLayout({
     { label: "SUPPORT", path: "/support" },
   ];
 
+  const showTopButtons = location.pathname !== "/";
+
   const sideButtons = [
-    { icon: "🏠", label: "HOME", path: "/dashboard" },
+    { icon: "🏠", label: "HOME", path: "/schedule" },
     { icon: "🌡️", label: "CCP", path: "/ccp" },
     { icon: "📋", label: "DIARY", path: "/diary" },
     { icon: "📝", label: "Tasks", path: "/tasks" },
@@ -214,8 +216,7 @@ export default function DashboardLayout({
 
         {/* MAIN */}
         <main style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-          {/* TOP BUTTONS ONLY ON HOME PAGE */}
-          {location.pathname === "/dashboard" && (
+          {showTopButtons && (
             <div
               style={{
                 display: "flex",
@@ -230,9 +231,9 @@ export default function DashboardLayout({
                   key={item.label}
                   onClick={() => navigate(item.path)}
                   style={{
-                    background: "#000",
-                    color: "#fff",
-                    border: "none",
+                    background: location.pathname === item.path ? "#fff" : "#000",
+                    color: location.pathname === item.path ? "#111" : "#fff",
+                    border: location.pathname === item.path ? "2px solid #111" : "none",
                     padding: "25px 30px",
                     minWidth: "190px",
                     fontSize: "29px",
@@ -241,10 +242,14 @@ export default function DashboardLayout({
                     transition: "0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#333";
+                    if (location.pathname !== item.path) {
+                      e.currentTarget.style.background = "#333";
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#000";
+                    if (location.pathname !== item.path) {
+                      e.currentTarget.style.background = "#000";
+                    }
                   }}
                 >
                   {item.label}
