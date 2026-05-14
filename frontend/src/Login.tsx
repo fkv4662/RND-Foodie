@@ -18,8 +18,13 @@ const Login: React.FC = () => {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
@@ -44,7 +49,9 @@ const Login: React.FC = () => {
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           username: regName,
           email: regEmail,
@@ -70,13 +77,8 @@ const Login: React.FC = () => {
 
   return (
     <div style={pageStyle}>
-      {/* HEADER */}
-      <div style={headerStyle}>
-        <h1 style={titleStyle}>FOODIE CONTROL PLAN</h1>
-      </div>
-
-      {/* LOGIN CARD */}
       <div style={cardStyle}>
+        {/* FOODIE ICON */}
         <div style={logoStyle}>🍽️</div>
 
         <h2 style={cardTitleStyle}>
@@ -170,45 +172,38 @@ export default Login;
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
   background: "#ffffff",
-};
-
-const headerStyle: React.CSSProperties = {
-  background: "#000",
-  padding: "28px 40px",
-};
-
-const titleStyle: React.CSSProperties = {
-  color: "#fff",
-  fontSize: "56px",
-  fontWeight: "bold",
-  margin: 0,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
 };
 
 const cardStyle: React.CSSProperties = {
   width: "400px",
-  margin: "90px auto",
   background: "#fff",
-  borderRadius: "14px",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
-  padding: "36px",
-  border: "1px solid #ddd",
+  borderRadius: "16px",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+  padding: "40px",
+  border: "1px solid #eee",
 };
 
 const logoStyle: React.CSSProperties = {
-  fontSize: "50px",
+  fontSize: "58px",
   textAlign: "center",
+  marginBottom: "10px",
 };
 
 const cardTitleStyle: React.CSSProperties = {
   textAlign: "center",
   marginBottom: "10px",
-  fontSize: "32px",
+  fontSize: "34px",
+  fontWeight: "bold",
 };
 
 const subTextStyle: React.CSSProperties = {
   textAlign: "center",
   color: "#666",
-  marginBottom: "24px",
+  marginBottom: "28px",
+  fontSize: "15px",
 };
 
 const formStyle: React.CSSProperties = {
@@ -219,9 +214,10 @@ const formStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   padding: "16px",
-  borderRadius: "8px",
+  borderRadius: "10px",
   border: "1px solid #ccc",
   fontSize: "15px",
+  outline: "none",
 };
 
 const loginButtonStyle: React.CSSProperties = {
@@ -229,10 +225,11 @@ const loginButtonStyle: React.CSSProperties = {
   color: "#fff",
   border: "none",
   padding: "16px",
-  borderRadius: "8px",
+  borderRadius: "10px",
   fontWeight: "bold",
   fontSize: "16px",
   cursor: "pointer",
+  marginTop: "8px",
 };
 
 const switchButtonStyle: React.CSSProperties = {
