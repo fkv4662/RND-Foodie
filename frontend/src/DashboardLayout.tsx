@@ -38,7 +38,12 @@ export default function DashboardLayout({
     { label: "SUPPORT", path: "/support" },
   ];
 
-  const showTopButtons = location.pathname !== "/";
+  // ONLY SHOW TOP BUTTONS ON HOME/SCHEDULE PAGE
+  const showTopButtons =
+  location.pathname === "/schedule" ||
+  location.pathname === "/notifications" ||
+  location.pathname === "/account" ||
+  location.pathname === "/support";
 
   const sideButtons = [
     { icon: "🏠", label: "HOME", path: "/schedule" },
@@ -87,7 +92,6 @@ export default function DashboardLayout({
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            title="User menu"
             style={{
               width: "60px",
               height: "60px",
@@ -124,10 +128,10 @@ export default function DashboardLayout({
                   borderBottom: "1px solid #ddd",
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: "15px" }}>
+                <div style={{ fontWeight: 700 }}>
                   {user?.username || "User"}
                 </div>
-                <div style={{ fontSize: "12px", color: "#666", marginTop: "3px" }}>
+                <div style={{ fontSize: "12px", color: "#666" }}>
                   {user?.role || "No role"}
                 </div>
               </div>
@@ -171,7 +175,6 @@ export default function DashboardLayout({
             alignItems: "center",
             gap: "26px",
             padding: "28px 10px",
-            boxSizing: "border-box",
           }}
         >
           {sideButtons.map((item) => {
@@ -187,23 +190,16 @@ export default function DashboardLayout({
                   cursor: "pointer",
                   padding: "14px 8px",
                   borderRadius: "12px",
-                  transition: "0.2s",
                   background: isActive ? "#444" : "transparent",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.background = "#333";
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.background = "transparent";
                 }}
               >
                 <div style={{ fontSize: "46px", marginBottom: "10px" }}>
                   {item.icon}
                 </div>
+
                 <div
                   style={{
                     fontSize: "16px",
-                    lineHeight: 1.2,
                     fontWeight: isActive ? 700 : 500,
                   }}
                 >
@@ -215,15 +211,13 @@ export default function DashboardLayout({
         </aside>
 
         {/* MAIN */}
-        <main style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <main style={{ display: "flex", flexDirection: "column" }}>
           {showTopButtons && (
             <div
               style={{
                 display: "flex",
-                flexWrap: "wrap",
                 gap: "12px",
                 padding: "12px 14px",
-                boxSizing: "border-box",
               }}
             >
               {topButtons.map((item) => (
@@ -231,25 +225,19 @@ export default function DashboardLayout({
                   key={item.label}
                   onClick={() => navigate(item.path)}
                   style={{
-                    background: location.pathname === item.path ? "#fff" : "#000",
-                    color: location.pathname === item.path ? "#111" : "#fff",
-                    border: location.pathname === item.path ? "2px solid #111" : "none",
+                    background:
+                      location.pathname === item.path ? "#fff" : "#000",
+                    color:
+                      location.pathname === item.path ? "#111" : "#fff",
+                    border:
+                      location.pathname === item.path
+                        ? "2px solid #111"
+                        : "none",
                     padding: "25px 30px",
                     minWidth: "190px",
                     fontSize: "29px",
                     fontWeight: 700,
                     cursor: "pointer",
-                    transition: "0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (location.pathname !== item.path) {
-                      e.currentTarget.style.background = "#333";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (location.pathname !== item.path) {
-                      e.currentTarget.style.background = "#000";
-                    }
                   }}
                 >
                   {item.label}
@@ -259,7 +247,7 @@ export default function DashboardLayout({
           )}
 
           {/* PAGE CONTENT */}
-          <div style={{ flex: 1, padding: "20px", boxSizing: "border-box" }}>
+          <div style={{ flex: 1, padding: "20px" }}>
             <h2
               style={{
                 margin: "0 0 20px 0",
