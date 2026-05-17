@@ -24,6 +24,7 @@ const businessDetailsRouter = require('./routes/businessDetails.routes');
 const usersRouter = require('./routes/users.routes'); // ADMIN PAGE
 const diaryRouter = require('./routes/diary.routes');
 const deliveryRouter = require('./routes/delivery.routes');
+const scheduleRouter = require('./routes/schedule.routes');
 
 // ✅ API Routes
 app.use('/api/oven', ovenRouter);
@@ -36,6 +37,7 @@ app.use('/api/business-details', businessDetailsRouter);
 app.use('/api/diary', diaryRouter); // YOUR PART
 app.use('/api/delivery', deliveryRouter); // YOUR DELIVERY
 app.use('/api/users', usersRouter); // ADMIN PAGE
+app.use('/api/schedule', scheduleRouter);
 
 // ✅ Database test route
 const { pool } = require('./db');

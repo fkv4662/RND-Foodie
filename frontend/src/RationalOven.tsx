@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "./DashboardLayout";
 
 interface OvenLog {
@@ -12,6 +13,7 @@ interface OvenLog {
 }
 
 export default function RationalOven() {
+	const navigate = useNavigate();
 	const [logs, setLogs] = useState<OvenLog[]>([]);
 	const [alerts, setAlerts] = useState<OvenLog[]>([]);
 	const [showAlerts, setShowAlerts] = useState(false);
@@ -36,46 +38,75 @@ export default function RationalOven() {
 	};
 
 	return (
-		   <div style={{ background: '#f7f7f7', minHeight: '100vh', fontFamily: 'Arial, sans-serif', padding: '2em' }}>
-			   <div style={{ maxWidth: 600, margin: '0 auto', background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px #0002', padding: '2.5em 2em 2em 2em', marginBottom: '2.5em' }}>
-				   <h2 style={{ fontWeight: 800, fontSize: '2em', marginBottom: '1.2em', color: '#2a4d69' }}>Manual Rational Oven Entry</h2>
-				   <OvenForm onSubmit={() => { setTimeout(refresh, 500); }} />
-			   </div>
-			   <div style={{ maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px #0002', padding: '2em', marginBottom: '2.5em' }}>
-				   <div style={{ display: 'flex', gap: '2em', alignItems: 'center', marginBottom: '2em', flexWrap: 'wrap' }}>
-					   <div style={{ background: '#f7f7f7', borderRadius: '10px', boxShadow: '0 2px 8px #0001', padding: '1em 2em', minWidth: 180, textAlign: 'center' }}>
-						   <div style={{ fontSize: '2.2em', color: '#e74c3c', fontWeight: 700 }}>{alertCount}</div>
-						   <div style={{ color: '#e74c3c', fontWeight: 600, fontSize: '1.1em' }}>Active Alerts</div>
-					   </div>
-					   <div style={{ background: '#f7f7f7', borderRadius: '10px', boxShadow: '0 2px 8px #0001', padding: '1em 2em', minWidth: 180, textAlign: 'center' }}>
-						   <div style={{ fontSize: '1.2em', color: '#2a4d69', fontWeight: 700 }}>Start: {avgStartTemp}°C</div>
-						   <div style={{ fontSize: '1.2em', color: '#2a4d69', fontWeight: 700 }}>Finish: {avgFinishTemp}°C</div>
-						   <div style={{ color: '#2a4d69', fontWeight: 600, fontSize: '1.1em' }}>Avg Temperatures</div>
-					   </div>
-					   <div style={{ marginLeft: 'auto', display: 'flex', gap: '1em' }}>
-						   <button onClick={() => setShowAlerts(false)} style={{ background: showAlerts ? '#fff' : '#2a4d69', color: showAlerts ? '#2a4d69' : '#fff', border: '2px solid #2a4d69', padding: '0.5em 1.5em', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Show All Logs</button>
-						   <button onClick={() => setShowAlerts(true)} style={{ background: showAlerts ? '#2a4d69' : '#fff', color: showAlerts ? '#fff' : '#2a4d69', border: '2px solid #2a4d69', padding: '0.5em 1.5em', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Show Alerts Only</button>
-						   <button
-							   style={{ background: '#e74c3c', color: '#fff', border: 'none', padding: '0.5em 1.5em', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', marginLeft: '1em' }}
-							   onClick={async () => {
-								   if (window.confirm('Delete ALL logs? This cannot be undone.')) {
-									   await fetch('/api/oven/logs', { method: 'DELETE' });
-									   refresh();
-								   }
-							   }}
-						   >
-							   Delete All Logs
-						   </button>
-					   </div>
-				   </div>
-				   <h2 style={{ fontWeight: 800, fontSize: '1.5em', marginBottom: '1em', color: '#2a4d69' }}>All Rational Oven Logs</h2>
-				   {!showAlerts ? (
-					   <OvenLogsTable logs={logs} onDelete={() => {}} />
-				   ) : (
-					   <OvenLogsTable logs={alerts} onDelete={() => {}} />
-				   )}
-			   </div>
-		   </div>
+		<DashboardLayout title="Rational Oven">
+			<div style={{ background: '#f7f7f7', fontFamily: 'Arial, sans-serif', padding: '2em', borderRadius: 24 }}>
+				<div style={{ maxWidth: 1200, margin: '0 auto 1.25em', display: 'flex', justifyContent: 'flex-start' }}>
+					<button
+						type="button"
+						onClick={() => navigate(-1)}
+						style={{ background: '#fff', color: '#2a4d69', border: '1px solid #cbd5e1', padding: '0.75em 1.1em', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}
+					>
+						← Back
+					</button>
+				</div>
+				<div style={{ maxWidth: 1200, margin: '0 auto 2.5em', display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(320px, 0.8fr)', gap: '1.5em', alignItems: 'start' }}>
+					<div style={{ background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px #0002', padding: '2.5em 2em 2em 2em' }}>
+						<h2 style={{ fontWeight: 800, fontSize: '2em', marginBottom: '1.2em', color: '#2a4d69' }}>Manual Rational Oven Entry</h2>
+						<OvenForm onSubmit={() => { setTimeout(refresh, 500); }} />
+					</div>
+					<div style={{ background: 'linear-gradient(180deg, #eef6ff 0%, #ffffff 100%)', borderRadius: 18, boxShadow: '0 4px 24px #0002', padding: '2em', border: '1px solid #cfe0f2' }}>
+						<div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5em', background: '#dbeafe', color: '#1d4d8f', borderRadius: 999, padding: '0.5em 0.85em', fontWeight: 700, fontSize: '0.82em', marginBottom: '1.25em' }}>
+							CLOUD FEED STATUS
+						</div>
+						<h3 style={{ fontWeight: 800, fontSize: '1.6em', margin: '0 0 0.7em', color: '#2a4d69' }}>Automatic oven data is under maintenance</h3>
+						<p style={{ margin: '0 0 1em', color: '#4b5d6b', lineHeight: 1.6, fontSize: '1em' }}>
+							The Rational cloud integration is not active yet, so live oven records are temporarily unavailable on this screen.
+						</p>
+						<div style={{ background: '#fff', borderRadius: 14, padding: '1em 1.1em', border: '1px solid #d8e4f0', marginBottom: '1em' }}>
+							<div style={{ fontWeight: 700, color: '#1d4d8f', marginBottom: '0.45em' }}>What to use right now</div>
+							<div style={{ color: '#4b5d6b', lineHeight: 1.6 }}>Continue using manual entry to record start and finish temperatures while the automatic sync is being updated.</div>
+						</div>
+						<div style={{ color: '#6b7b88', fontSize: '0.95em', lineHeight: 1.6 }}>
+							Once maintenance is complete, cloud-fed oven logs can be added here alongside manual records.
+						</div>
+					</div>
+				</div>
+				<div style={{ maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px #0002', padding: '2em', marginBottom: '2.5em' }}>
+					<div style={{ display: 'flex', gap: '2em', alignItems: 'center', marginBottom: '2em', flexWrap: 'wrap' }}>
+						<div style={{ background: '#f7f7f7', borderRadius: '10px', boxShadow: '0 2px 8px #0001', padding: '1em 2em', minWidth: 180, textAlign: 'center' }}>
+							<div style={{ fontSize: '2.2em', color: '#e74c3c', fontWeight: 700 }}>{alertCount}</div>
+							<div style={{ color: '#e74c3c', fontWeight: 600, fontSize: '1.1em' }}>Active Alerts</div>
+						</div>
+						<div style={{ background: '#f7f7f7', borderRadius: '10px', boxShadow: '0 2px 8px #0001', padding: '1em 2em', minWidth: 180, textAlign: 'center' }}>
+							<div style={{ fontSize: '1.2em', color: '#2a4d69', fontWeight: 700 }}>Start: {avgStartTemp}°C</div>
+							<div style={{ fontSize: '1.2em', color: '#2a4d69', fontWeight: 700 }}>Finish: {avgFinishTemp}°C</div>
+							<div style={{ color: '#2a4d69', fontWeight: 600, fontSize: '1.1em' }}>Avg Temperatures</div>
+						</div>
+						<div style={{ marginLeft: 'auto', display: 'flex', gap: '1em' }}>
+							<button onClick={() => setShowAlerts(false)} style={{ background: showAlerts ? '#fff' : '#2a4d69', color: showAlerts ? '#2a4d69' : '#fff', border: '2px solid #2a4d69', padding: '0.5em 1.5em', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Show All Logs</button>
+							<button onClick={() => setShowAlerts(true)} style={{ background: showAlerts ? '#2a4d69' : '#fff', color: showAlerts ? '#fff' : '#2a4d69', border: '2px solid #2a4d69', padding: '0.5em 1.5em', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Show Alerts Only</button>
+							<button
+								style={{ background: '#e74c3c', color: '#fff', border: 'none', padding: '0.5em 1.5em', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', marginLeft: '1em' }}
+								onClick={async () => {
+									if (window.confirm('Delete ALL logs? This cannot be undone.')) {
+										await fetch('/api/oven/logs', { method: 'DELETE' });
+										refresh();
+									}
+								}}
+							>
+								Delete All Logs
+							</button>
+						</div>
+					</div>
+					<h2 style={{ fontWeight: 800, fontSize: '1.5em', marginBottom: '1em', color: '#2a4d69' }}>All Rational Oven Logs</h2>
+					{!showAlerts ? (
+						<OvenLogsTable logs={logs} onDelete={() => {}} />
+					) : (
+						<OvenLogsTable logs={alerts} onDelete={() => {}} />
+					)}
+				</div>
+			</div>
+		</DashboardLayout>
 	);
 }
 

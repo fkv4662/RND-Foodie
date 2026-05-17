@@ -1,11 +1,5 @@
-import DashboardLayout from "./DashboardLayout";
+import { Navigate } from "react-router-dom";
 
 export default function Dashboard() {
-  return (
-    <DashboardLayout title="Home">
-      <p style={{ margin: 0, fontSize: "17px" }}>
-        Welcome to Foodie Control Plan.
-      </p>
-    </DashboardLayout>
-  );
+  return <Navigate to="/schedule" replace />;
 }

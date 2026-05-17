@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import DashboardLayout from './DashboardLayout';
 
 interface TestoReading {
   id?: number;
@@ -14,6 +16,7 @@ interface TestoReading {
 }
 
 export default function TestoFridge() {
+  const navigate = useNavigate();
   const [readings, setReadings] = useState<TestoReading[]>([]);
   const [alertsOnly, setAlertsOnly] = useState(false);
   const [message, setMessage] = useState('');
@@ -111,8 +114,18 @@ export default function TestoFridge() {
   }, []);
 
   return (
-    <div style={{ background: '#f4f7fb', minHeight: '100vh', fontFamily: 'Arial, sans-serif', padding: '24px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <DashboardLayout title="Testo Fridge">
+      <div style={{ background: '#f4f7fb', fontFamily: 'Arial, sans-serif', padding: '24px', borderRadius: '24px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            style={{ background: '#fff', color: '#12344d', border: '1px solid #cbd5e1', padding: '12px 18px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}
+          >
+            ← Back
+          </button>
+        </div>
         <h1 style={{ textAlign: 'center', fontSize: '42px', marginBottom: '24px', color: '#12344d' }}>
           Testo Fridge Monitoring
         </h1>
@@ -250,56 +263,57 @@ export default function TestoFridge() {
           </div>
         </div>
 
-        <div
-          style={{
-            background: '#fff',
-            borderRadius: '16px',
-            padding: '20px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
-          }}
-        >
-          <h2 style={{ marginTop: 0 }}>{alertsOnly ? 'Testo Alert Readings' : 'All Testo Fridge Readings'}</h2>
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+            }}
+          >
+            <h2 style={{ marginTop: 0 }}>{alertsOnly ? 'Testo Alert Readings' : 'All Testo Fridge Readings'}</h2>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Source</th>
-                  <th style={thStyle}>Device ID</th>
-                  <th style={thStyle}>Device Name</th>
-                  <th style={thStyle}>Location</th>
-                  <th style={thStyle}>Temperature (°C)</th>
-                  <th style={thStyle}>Humidity (%)</th>
-                  <th style={thStyle}>Status</th>
-                  <th style={thStyle}>Recorded At</th>
-                  <th style={thStyle}>Imported At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {readings.map((reading, index) => (
-                  <tr
-                    key={`${reading.device_id}-${reading.recorded_at}-${index}`}
-                    style={reading.status === 'ALERT' ? { background: '#fff1f2' } : {}}
-                  >
-                    <td style={tdStyle}>{reading.source}</td>
-                    <td style={tdStyle}>{reading.device_id}</td>
-                    <td style={tdStyle}>{reading.device_name}</td>
-                    <td style={tdStyle}>{reading.location || '-'}</td>
-                    <td style={tdStyle}>{reading.temperature}</td>
-                    <td style={tdStyle}>{reading.humidity ?? '-'}</td>
-                    <td style={tdStyle}>{reading.status}</td>
-                    <td style={tdStyle}>{reading.recorded_at}</td>
-                    <td style={tdStyle}>{reading.imported_at || '-'}</td>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>Source</th>
+                    <th style={thStyle}>Device ID</th>
+                    <th style={thStyle}>Device Name</th>
+                    <th style={thStyle}>Location</th>
+                    <th style={thStyle}>Temperature (°C)</th>
+                    <th style={thStyle}>Humidity (%)</th>
+                    <th style={thStyle}>Status</th>
+                    <th style={thStyle}>Recorded At</th>
+                    <th style={thStyle}>Imported At</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {readings.map((reading, index) => (
+                    <tr
+                      key={`${reading.device_id}-${reading.recorded_at}-${index}`}
+                      style={reading.status === 'ALERT' ? { background: '#fff1f2' } : {}}
+                    >
+                      <td style={tdStyle}>{reading.source}</td>
+                      <td style={tdStyle}>{reading.device_id}</td>
+                      <td style={tdStyle}>{reading.device_name}</td>
+                      <td style={tdStyle}>{reading.location || '-'}</td>
+                      <td style={tdStyle}>{reading.temperature}</td>
+                      <td style={tdStyle}>{reading.humidity ?? '-'}</td>
+                      <td style={tdStyle}>{reading.status}</td>
+                      <td style={tdStyle}>{reading.recorded_at}</td>
+                      <td style={tdStyle}>{reading.imported_at || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          {readings.length === 0 && <p style={{ marginTop: '16px', color: '#64748b' }}>No readings to display.</p>}
+            {readings.length === 0 && <p style={{ marginTop: '16px', color: '#64748b' }}>No readings to display.</p>}
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 

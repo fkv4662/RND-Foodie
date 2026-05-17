@@ -33,7 +33,7 @@ const Login: React.FC = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        navigate("/dashboard");
+        navigate("/schedule");
       } else {
         alert(data.message || "Invalid credentials");
       }
