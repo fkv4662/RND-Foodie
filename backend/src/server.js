@@ -7,10 +7,10 @@ const app = express();
 
 const { seedAdmin } = require('./seedAdmin');
 const { initTables } = require('./initTables');
-const { ingestMockTestoReadings } = require('./services/testoService');
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(__dirname + '/public'));
 
 // ✅ Routers
@@ -21,7 +21,7 @@ const ccpRouter = require('./routes/ccp.routes');
 const rationalOvenRouter = require('./routes/rationalOven.routes');
 const notificationsRouter = require('./routes/notifications.routes');
 const businessDetailsRouter = require('./routes/businessDetails.routes');
-const usersRouter = require('./routes/users.routes'); // ADMIN PAGE
+const usersRouter = require('./routes/users.routes');
 const diaryRouter = require('./routes/diary.routes');
 const deliveryRouter = require('./routes/delivery.routes');
 const scheduleRouter = require('./routes/schedule.routes');
@@ -34,9 +34,9 @@ app.use('/api/ccp', ccpRouter);
 app.use('/api/rational-oven', rationalOvenRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/business-details', businessDetailsRouter);
-app.use('/api/diary', diaryRouter); // YOUR PART
-app.use('/api/delivery', deliveryRouter); // YOUR DELIVERY
-app.use('/api/users', usersRouter); // ADMIN PAGE
+app.use('/api/diary', diaryRouter);
+app.use('/api/delivery', deliveryRouter);
+app.use('/api/users', usersRouter);
 app.use('/api/schedule', scheduleRouter);
 
 // ✅ Database test route
@@ -49,7 +49,7 @@ app.get('/api/db-test', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Database connection failed',
-      error: err.message
+      error: err.message,
     });
   }
 });
@@ -62,20 +62,6 @@ app.get('/', (req, res) => {
 // ✅ Port
 const PORT = process.env.PORT || 4000;
 
-// ✅ Scheduler
-function startTestoScheduler() {
-  const FIVE_MINUTES = 5 * 60 * 1000;
-
-  setInterval(async () => {
-    try {
-      const result = await ingestMockTestoReadings();
-      console.log('Scheduled Testo ingestion:', result);
-    } catch (error) {
-      console.error('Scheduled Testo ingestion failed:', error.message);
-    }
-  }, FIVE_MINUTES);
-}
-
 // ✅ Start server
 app.listen(PORT, async () => {
   await initTables();
@@ -86,13 +72,4 @@ app.listen(PORT, async () => {
   } catch (error) {
     console.error('Admin seed warning:', error.message);
   }
-
-  try {
-    const result = await ingestMockTestoReadings();
-    console.log('Initial Testo ingestion:', result);
-  } catch (error) {
-    console.error('Initial Testo ingestion failed:', error.message);
-  }
-
-  startTestoScheduler();
 });
