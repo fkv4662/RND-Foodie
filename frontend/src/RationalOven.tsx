@@ -125,8 +125,7 @@ export default function RationalOven() {
               color: "#6b5200",
             }}
           >
-            Auditor view only — you can view oven logs, but cannot add or edit
-            oven records.
+            View only 
           </div>
         )}
 
