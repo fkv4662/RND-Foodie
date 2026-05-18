@@ -35,6 +35,9 @@ type ViewMode = 'cards' | 'table';
 export default function TestoFridge() {
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAuditor = user?.role?.toUpperCase() === 'AUDITOR';
+
   const [readings, setReadings] = useState<TestoReading[]>([]);
   const [devices, setDevices] = useState<TestoDevice[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState('all');
@@ -45,26 +48,19 @@ export default function TestoFridge() {
   const [uploadingCsv, setUploadingCsv] = useState(false);
   const [selectedCsvFile, setSelectedCsvFile] = useState<File | null>(null);
 
-  // Controls whether readings are shown as cards or table.
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
 
-  // Manual entry form state.
   const [deviceId, setDeviceId] = useState('');
   const [deviceName, setDeviceName] = useState('');
   const [location, setLocation] = useState('');
   const [temperature, setTemperature] = useState('');
   const [humidity, setHumidity] = useState('');
 
-  // Date/time filter state.
   const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
 
-  /**
-   * Device filter is applied on the frontend.
-   * Date and alert filters are still handled by the backend.
-   */
   const displayedReadings = useMemo(() => {
     if (selectedDeviceId === 'all') {
       return readings;
@@ -73,10 +69,6 @@ export default function TestoFridge() {
     return readings.filter((reading) => reading.device_id === selectedDeviceId);
   }, [readings, selectedDeviceId]);
 
-  /**
-   * Summary cards are calculated from what is currently displayed.
-   * This means the cards update when the user changes date, alert, or device filters.
-   */
   const summary = useMemo(() => {
     const total = displayedReadings.length;
     const alert = displayedReadings.filter((reading) => reading.status === 'ALERT').length;
@@ -91,9 +83,6 @@ export default function TestoFridge() {
     };
   }, [displayedReadings]);
 
-  /**
-   * Formats a JavaScript Date into YYYY-MM-DD for date input fields.
-   */
   function formatLocalDate(date: Date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -102,10 +91,6 @@ export default function TestoFridge() {
     return `${year}-${month}-${day}`;
   }
 
-  /**
-   * Combines date and time inputs into a datetime string for the backend.
-   * If the user leaves the time empty, it uses the start or end of the selected day.
-   */
   function buildDateTimeValue(date: string, time: string, defaultTime: string) {
     if (!date) {
       return '';
@@ -114,9 +99,6 @@ export default function TestoFridge() {
     return `${date}T${time || defaultTime}:00`;
   }
 
-  /**
-   * Builds the query string for date range filtering.
-   */
   function buildFilterQuery(filters: DateFilterState) {
     const params = new URLSearchParams();
 
@@ -135,9 +117,6 @@ export default function TestoFridge() {
     return query ? `?${query}` : '';
   }
 
-  /**
-   * Returns the current date/time filter values.
-   */
   function getCurrentFilters(): DateFilterState {
     return {
       startDate,
@@ -147,10 +126,6 @@ export default function TestoFridge() {
     };
   }
 
-  /**
-   * Loads all known Testo devices from the backend.
-   * This makes the dropdown update automatically after manual entries or CSV imports.
-   */
   async function loadDeviceOptions() {
     try {
       const res = await fetch('/api/testo/devices');
@@ -160,16 +135,10 @@ export default function TestoFridge() {
         setDevices(data);
       }
     } catch {
-      // Device filter failing should not stop the whole page from working.
       setDevices([]);
     }
   }
 
-  /**
-   * Loads readings from the backend.
-   * It can load either all readings or alert-only readings.
-   * It also sends the selected date/time filter to the backend.
-   */
   async function loadReadings(showAlerts = alertsOnly, overrideFilters?: Partial<DateFilterState>) {
     setLoadingReadings(true);
 
@@ -199,10 +168,6 @@ export default function TestoFridge() {
     }
   }
 
-  /**
-   * Uploads a real Testo CSV export to the backend.
-   * The backend imports every sensor column and skips duplicates.
-   */
   async function uploadCsvFile() {
     if (!selectedCsvFile) {
       setMessage('Please choose a Testo CSV file first');
@@ -240,7 +205,6 @@ export default function TestoFridge() {
         setSelectedCsvFile(null);
         setAlertsOnly(false);
 
-        // Refresh both readings and device dropdown after import.
         await loadReadings(false);
         await loadDeviceOptions();
       } else {
@@ -253,9 +217,6 @@ export default function TestoFridge() {
     }
   }
 
-  /**
-   * Saves a manual fridge reading.
-   */
   async function submitManualEntry(e: React.FormEvent) {
     e.preventDefault();
     setMessage('Saving manual entry...');
@@ -286,7 +247,6 @@ export default function TestoFridge() {
         setHumidity('');
         setAlertsOnly(false);
 
-        // Refresh both readings and device dropdown after manual entry.
         await loadReadings(false);
         await loadDeviceOptions();
       } else {
@@ -297,9 +257,6 @@ export default function TestoFridge() {
     }
   }
 
-  /**
-   * Shows readings from today.
-   */
   async function showToday() {
     const today = formatLocalDate(new Date());
 
@@ -317,9 +274,6 @@ export default function TestoFridge() {
     });
   }
 
-  /**
-   * Shows readings from the last 7 calendar days.
-   */
   async function showLast7Days() {
     const todayDate = new Date();
     const startDateObj = new Date();
@@ -343,9 +297,6 @@ export default function TestoFridge() {
     });
   }
 
-  /**
-   * Clears all date/time filters.
-   */
   async function clearFilters() {
     setStartDate('');
     setStartTime('');
@@ -361,16 +312,10 @@ export default function TestoFridge() {
     });
   }
 
-  /**
-   * Applies custom date/time filters selected by the user.
-   */
   async function applyCustomFilters() {
     await loadReadings(alertsOnly);
   }
 
-  /**
-   * Converts temperature values into a clean display format.
-   */
   function formatTemperature(value: number | string) {
     const numberValue = Number(value);
 
@@ -381,9 +326,6 @@ export default function TestoFridge() {
     return `${numberValue.toFixed(1)}°C`;
   }
 
-  /**
-   * Makes CSV cells safe by escaping commas, quotes, and line breaks.
-   */
   function escapeCsvCell(value: unknown) {
     const text = value === undefined || value === null ? '' : String(value);
     const escaped = text.replace(/"/g, '""');
@@ -395,13 +337,6 @@ export default function TestoFridge() {
     return escaped;
   }
 
-  /**
-   * Downloads the currently displayed readings as a CSV file.
-   * This respects:
-   * - date/time filters
-   * - alert/all filter
-   * - selected device filter
-   */
   function exportDisplayedReadingsToCsv() {
     if (displayedReadings.length === 0) {
       setMessage('There are no displayed readings to export');
@@ -456,9 +391,6 @@ export default function TestoFridge() {
     setMessage(`Exported ${displayedReadings.length} displayed reading${displayedReadings.length === 1 ? '' : 's'} to CSV`);
   }
 
-  /**
-   * Gives each status a clear visual style.
-   */
   function getStatusBadgeStyle(status: string): CSSProperties {
     if (status === 'ALERT') {
       return {
@@ -500,6 +432,12 @@ export default function TestoFridge() {
 
           {message && <div style={messageBoxStyle}>{message}</div>}
 
+          {isAuditor && (
+            <div style={auditorNoticeStyle}>
+              View only 
+            </div>
+          )}
+
           <div style={summaryGridStyle}>
             <SummaryCard title="Displayed readings" value={summary.total} note="After current filters" />
             <SummaryCard title="Safe readings" value={summary.safe} note="5°C or below" />
@@ -512,99 +450,101 @@ export default function TestoFridge() {
             />
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '20px',
-              marginBottom: '24px',
-            }}
-          >
-            <div style={panelStyle}>
-              <h2 style={{ marginTop: 0 }}>Manual Entry</h2>
-              <p style={{ color: '#64748b', lineHeight: 1.5 }}>
-                Use this if a staff member needs to record a fridge temperature manually.
-              </p>
+          {!isAuditor && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: '20px',
+                marginBottom: '24px',
+              }}
+            >
+              <div style={panelStyle}>
+                <h2 style={{ marginTop: 0 }}>Manual Entry</h2>
+                <p style={{ color: '#64748b', lineHeight: 1.5 }}>
+                  Use this if a staff member needs to record a fridge temperature manually.
+                </p>
 
-              <form onSubmit={submitManualEntry}>
-                <label style={labelStyle}>
-                  Device ID
-                  <input style={inputStyle} value={deviceId} onChange={(e) => setDeviceId(e.target.value)} required />
-                </label>
+                <form onSubmit={submitManualEntry}>
+                  <label style={labelStyle}>
+                    Device ID
+                    <input style={inputStyle} value={deviceId} onChange={(e) => setDeviceId(e.target.value)} required />
+                  </label>
 
-                <label style={labelStyle}>
-                  Device Name
-                  <input style={inputStyle} value={deviceName} onChange={(e) => setDeviceName(e.target.value)} required />
-                </label>
+                  <label style={labelStyle}>
+                    Device Name
+                    <input style={inputStyle} value={deviceName} onChange={(e) => setDeviceName(e.target.value)} required />
+                  </label>
 
-                <label style={labelStyle}>
-                  Location
-                  <input style={inputStyle} value={location} onChange={(e) => setLocation(e.target.value)} />
-                </label>
+                  <label style={labelStyle}>
+                    Location
+                    <input style={inputStyle} value={location} onChange={(e) => setLocation(e.target.value)} />
+                  </label>
 
-                <label style={labelStyle}>
-                  Temperature (°C)
-                  <input
-                    style={inputStyle}
-                    type="number"
-                    step="0.1"
-                    value={temperature}
-                    onChange={(e) => setTemperature(e.target.value)}
-                    required
-                  />
-                </label>
+                  <label style={labelStyle}>
+                    Temperature (°C)
+                    <input
+                      style={inputStyle}
+                      type="number"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setTemperature(e.target.value)}
+                      required
+                    />
+                  </label>
 
-                <label style={labelStyle}>
-                  Humidity (%)
-                  <input
-                    style={inputStyle}
-                    type="number"
-                    step="0.1"
-                    value={humidity}
-                    onChange={(e) => setHumidity(e.target.value)}
-                  />
-                </label>
+                  <label style={labelStyle}>
+                    Humidity (%)
+                    <input
+                      style={inputStyle}
+                      type="number"
+                      step="0.1"
+                      value={humidity}
+                      onChange={(e) => setHumidity(e.target.value)}
+                    />
+                  </label>
 
-                <button type="submit" style={primaryButtonStyle}>
-                  Save Manual Entry
+                  <button type="submit" style={primaryButtonStyle}>
+                    Save Manual Entry
+                  </button>
+                </form>
+              </div>
+
+              <div style={panelStyle}>
+                <h2 style={{ marginTop: 0 }}>Import Testo CSV</h2>
+                <p style={{ color: '#475569', lineHeight: 1.5 }}>
+                  Export a CSV file from Testo Data Analysis and upload it here. The system imports every sensor column
+                  and skips duplicates automatically.
+                </p>
+
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  onChange={(e) => setSelectedCsvFile(e.target.files?.[0] || null)}
+                  style={fileInputStyle}
+                />
+
+                {selectedCsvFile && (
+                  <div style={{ color: '#334155', marginBottom: '14px' }}>
+                    Selected file: <strong>{selectedCsvFile.name}</strong>
+                  </div>
+                )}
+
+                <button onClick={uploadCsvFile} disabled={uploadingCsv} style={primaryButtonStyle} type="button">
+                  {uploadingCsv ? 'Importing CSV...' : 'Upload Testo CSV'}
                 </button>
-              </form>
-            </div>
 
-            <div style={panelStyle}>
-              <h2 style={{ marginTop: 0 }}>Import Testo CSV</h2>
-              <p style={{ color: '#475569', lineHeight: 1.5 }}>
-                Export a CSV file from Testo Data Analysis and upload it here. The system imports every sensor column
-                and skips duplicates automatically.
-              </p>
-
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                onChange={(e) => setSelectedCsvFile(e.target.files?.[0] || null)}
-                style={fileInputStyle}
-              />
-
-              {selectedCsvFile && (
-                <div style={{ color: '#334155', marginBottom: '14px' }}>
-                  Selected file: <strong>{selectedCsvFile.name}</strong>
-                </div>
-              )}
-
-              <button onClick={uploadCsvFile} disabled={uploadingCsv} style={primaryButtonStyle} type="button">
-                {uploadingCsv ? 'Importing CSV...' : 'Upload Testo CSV'}
-              </button>
-
-              <div style={infoBoxStyle}>
-                <strong>Status Rule</strong>
-                <div style={{ marginTop: '8px' }}>SAFE = 5°C or below</div>
-                <div>ALERT = above 5°C</div>
-                <div style={{ marginTop: '8px', color: '#64748b' }}>
-                  Testo 164 T1 sensors import temperature only, so humidity will show as “-”.
+                <div style={infoBoxStyle}>
+                  <strong>Status Rule</strong>
+                  <div style={{ marginTop: '8px' }}>SAFE = 5°C or below</div>
+                  <div>ALERT = above 5°C</div>
+                  <div style={{ marginTop: '8px', color: '#64748b' }}>
+                    Testo 164 T1 sensors import temperature only, so humidity will show as “-”.
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div style={panelStyle}>
             <h2 style={{ marginTop: 0 }}>Filters</h2>
@@ -775,9 +715,6 @@ export default function TestoFridge() {
   );
 }
 
-/**
- * Displays one dashboard-style summary card.
- */
 function SummaryCard({
   title,
   value,
@@ -806,9 +743,6 @@ function SummaryCard({
   );
 }
 
-/**
- * Displays readings as clean responsive cards.
- */
 function ReadingsCardView({
   readings,
   formatTemperature,
@@ -884,9 +818,6 @@ function ReadingsCardView({
   );
 }
 
-/**
- * Displays readings in a wider, cleaner table.
- */
 function ReadingsTableView({
   readings,
   formatTemperature,
@@ -982,6 +913,16 @@ const messageBoxStyle: CSSProperties = {
   padding: '14px 16px',
   marginBottom: '20px',
   boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+};
+
+const auditorNoticeStyle: CSSProperties = {
+  background: '#fef3c7',
+  border: '1px solid #f59e0b',
+  color: '#92400e',
+  padding: '14px 16px',
+  borderRadius: '12px',
+  marginBottom: '20px',
+  fontWeight: 700,
 };
 
 const labelStyle: CSSProperties = {
