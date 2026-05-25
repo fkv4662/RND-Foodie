@@ -3,9 +3,12 @@ import DashboardLayout from "./DashboardLayout";
 
 interface SensorLog {
   id: number;
+  device_name: string;
+  location: string;
   temperature: number;
   humidity: number;
-  created_at: string;
+  status: string;
+  recorded_at: string;
 }
 
 interface ManualLog {
@@ -29,7 +32,7 @@ export default function CCPLogs() {
 
   const fetchLogs = async () => {
     try {
-      const response1 = await fetch("http://localhost:4000/api/ccp/logs");
+      const response1 = await fetch("http://localhost:4000/api/testo/readings");
       const data1 = await response1.json();
       setSensorLogs(data1);
 
@@ -112,22 +115,30 @@ export default function CCPLogs() {
                 <thead>
                   <tr style={{ backgroundColor: "#f5f5f5" }}>
                     <th style={thStyle}>Date</th>
-                    <th style={thStyle}>Time</th>
+                    <th style={thStyle}>Device</th>
+                    <th style={thStyle}>Location</th>
                     <th style={thStyle}>Temperature</th>
                     <th style={thStyle}>Humidity</th>
+                    <th style={thStyle}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sensorLogs.map((log) => (
                     <tr key={log.id} style={{ borderBottom: "1px solid #eee" }}>
                       <td style={tdStyle}>
-                        {new Date(log.created_at).toLocaleDateString()}
+                        {new Date(log.recorded_at).toLocaleDateString()}
                       </td>
-                      <td style={tdStyle}>
-                        {new Date(log.created_at).toLocaleTimeString()}
+                      <td style={tdStyle}>{log.device_name}</td>
+                      <td style={tdStyle}>{log.location}</td>
+                      <td style={{ ...tdStyle, color: log.status === 'ALERT' ? 'red' : 'green', fontWeight: 'bold' }}>
+                        {log.temperature}°C
                       </td>
-                      <td style={tdStyle}>{log.temperature}°C</td>
                       <td style={tdStyle}>{log.humidity}%</td>
+                      <td style={tdStyle}>
+                        <span style={{ color: log.status === 'ALERT' ? 'red' : 'green', fontWeight: 'bold' }}>
+                          {log.status === 'ALERT' ? '🚨 ALERT' : '✅ SAFE'}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
