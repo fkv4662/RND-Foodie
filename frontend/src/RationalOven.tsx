@@ -443,7 +443,7 @@ function OvenForm({ onSubmit }: { onSubmit: () => void }) {
   const [food_item, setFoodItem] = useState("");
   const [starting_temperature, setStartingTemperature] = useState("");
   const [finishing_temperature, setFinishingTemperature] = useState("");
-  const [result, setResult] = useState("");
+
 
   return (
     <form
@@ -463,7 +463,6 @@ function OvenForm({ onSubmit }: { onSubmit: () => void }) {
 
         const data = await res.json();
 
-        setResult(JSON.stringify(data, null, 2));
         setDeviceName("");
         setFoodItem("");
         setStartingTemperature("");
@@ -563,11 +562,7 @@ function OvenForm({ onSubmit }: { onSubmit: () => void }) {
         Save Entry
       </button>
 
-      {result && (
-        <div style={{ marginTop: "1em" }}>
-          <pre>{result}</pre>
-        </div>
-      )}
+      
     </form>
   );
 }
